@@ -1,59 +1,61 @@
-'use client'
+"use client";
 
 export const dynamic = "force-dynamic";
 
-import { useState } from 'react'
-import { supabase } from '../../lib/supabase'
+import { useState } from "react";
+import { useRouter } from "next/navigation";
+import { getSupabase } from "../../lib/supabase";
 
 export default function Signup() {
-  const [email, setEmail] = useState('')
-  const [password, setPassword] = useState('')
+  const supabase = getSupabase();
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const router = useRouter();
 
   const handleSignup = async () => {
-    console.log('signup clicked', { email, password })
+    try {
+      const { error } = await supabase.auth.signUp({
+        email,
+        password,
+      });
 
-    const { data, error } = await supabase.auth.signUp({
-      email,
-      password,
-    })
+      if (error) {
+        alert(error.message);
+        return;
+      }
 
-    console.log('signup result', { data, error })
-
-    if (error) {
-      alert(error.message)
-    } else {
-      alert('Account created!')
+      alert("Signup successful!");
+      router.push("/login");
+    } catch (err) {
+      alert(
+        `Unexpected error: ${
+          err instanceof Error ? err.message : "Unknown error"
+        }`
+      );
     }
-  }
+  };
 
   return (
-    <main className="min-h-screen flex items-center justify-center bg-black text-white">
-      <div className="bg-zinc-900 p-8 rounded-2xl w-80">
-        <h2 className="text-2xl mb-4">Create Account</h2>
+    <main style={{ padding: "40px" }}>
+      <h1>Sign Up</h1>
 
-        <input
-          type="email"
-          placeholder="Email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          className="w-full mb-3 p-2 rounded bg-black border"
-        />
+      <input
+        type="email"
+        placeholder="Email"
+        value={email}
+        onChange={(e) => setEmail(e.target.value)}
+        style={{ display: "block", marginBottom: "12px", padding: "8px" }}
+      />
 
-        <input
-          type="password"
-          placeholder="Password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          className="w-full mb-4 p-2 rounded bg-black border"
-        />
+      <input
+        type="password"
+        placeholder="Password"
+        value={password}
+        onChange={(e) => setPassword(e.target.value)}
+        style={{ display: "block", marginBottom: "12px", padding: "8px" }}
+      />
 
-        <button
-          onClick={handleSignup}
-          className="w-full bg-white text-black py-2 rounded"
-        >
-          Sign Up
-        </button>
-      </div>
+      <button onClick={handleSignup}>Create Account</button>
     </main>
-  )
+  );
 }

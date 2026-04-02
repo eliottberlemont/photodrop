@@ -1,22 +1,38 @@
 'use client';
 
+import Link from 'next/link';
+
 export default function PhotoDropLandingPage() {
   return (
     <>
       <div className="page">
         <header className="header">
-          <div className="brand">PhotoDrop</div>
+          <Link href="/" className="brand">
+            PhotoDrop
+          </Link>
 
           <nav className="nav">
-            <a href="#platform">Platform</a>
-            <a href="#solutions">Solutions</a>
-            <a href="#about">About</a>
-            <a href="#pricing">Pricing</a>
+            <a href="#platform" className="navLink">
+              Platform
+            </a>
+            <a href="#solutions" className="navLink">
+              Solutions
+            </a>
+            <a href="#about" className="navLink">
+              About
+            </a>
+            <a href="#pricing" className="navLink">
+              Pricing
+            </a>
           </nav>
 
           <div className="actions">
-            <button className="btn btn-outline">Login</button>
-            <button className="btn btn-primary">Book Demo</button>
+            <Link href="/login" className="btn btn-outline">
+              Login
+            </Link>
+            <Link href="/signup" className="btn btn-primary">
+              Book Demo
+            </Link>
           </div>
         </header>
 
@@ -25,51 +41,70 @@ export default function PhotoDropLandingPage() {
         </section>
 
         <main className="hero">
-          <div className="hero-copy">
-            <p className="eyebrow">Built for photographers, media teams, and service businesses</p>
-            <h1>
-              The easiest way to organize and deliver business photos.
-            </h1>
-            <p className="subtext">
-              PhotoDrop gives your business a polished client experience with clean uploads,
-              organized folders, and simple photo delivery in one place.
+          <div className="heroCopy">
+            <p className="eyebrow">
+              Built for photographers, media teams, and service businesses
             </p>
 
-            <div className="hero-buttons">
-              <button className="btn btn-primary btn-large">Book a Live Demo</button>
-              <button className="btn btn-secondary btn-large">Explore Platform</button>
+            <h1 className="heroTitle">
+              The easiest way to organize and deliver business photos.
+            </h1>
+
+            <p className="subtext">
+              PhotoDrop gives your business a polished client experience with
+              clean uploads, organized folders, and simple photo delivery in one
+              place.
+            </p>
+
+            <div className="heroButtons">
+              <Link href="/signup" className="btn btn-primary btn-large">
+                Book a Live Demo
+              </Link>
+              <Link href="/login" className="btn btn-secondary btn-large">
+                Explore Platform
+              </Link>
             </div>
           </div>
 
-          <div className="hero-card">
-            <div className="dashboard-window">
-              <div className="window-top">
+          <div className="heroCard">
+            <div className="dashboardWindow">
+              <div className="windowTop">
                 <div>
-                  <p className="mini-label">Client workspace</p>
-                  <h3>Sunset Media Group</h3>
+                  <p className="miniLabel">Client workspace</p>
+                  <h3 className="windowTitle">Sunset Media Group</h3>
                 </div>
-                <span className="status-pill">128 photos uploaded</span>
+                <span className="statusPill">128 photos uploaded</span>
               </div>
 
-              <div className="dashboard-grid">
+              <div className="dashboardGrid">
                 <div className="panel">
-                  <p className="panel-label">Recent folders</p>
-                  <div className="folder-list">
-                    <div className="folder-row"><span>Spring Listings</span><span>Open</span></div>
-                    <div className="folder-row"><span>Team Headshots</span><span>Open</span></div>
-                    <div className="folder-row"><span>Downtown Properties</span><span>Open</span></div>
+                  <p className="panelLabel">Recent folders</p>
+                  <div className="folderList">
+                    <div className="folderRow">
+                      <span>Spring Listings</span>
+                      <span>Open</span>
+                    </div>
+                    <div className="folderRow">
+                      <span>Team Headshots</span>
+                      <span>Open</span>
+                    </div>
+                    <div className="folderRow">
+                      <span>Downtown Properties</span>
+                      <span>Open</span>
+                    </div>
                   </div>
                 </div>
 
-                <div className="panel panel-highlight">
-                  <p className="panel-label">This month</p>
+                <div className="panel panelHighlight">
+                  <p className="panelLabel">This month</p>
                   <div className="metric">94%</div>
-                  <p className="metric-copy">client delivery completion</p>
-                  <div className="progress-track">
-                    <div className="progress-fill" />
+                  <p className="metricCopy">client delivery completion</p>
+                  <div className="progressTrack">
+                    <div className="progressFill" />
                   </div>
-                  <p className="small-copy">
-                    Give clients a premium experience from upload to final delivery.
+                  <p className="smallCopy">
+                    Give clients a premium experience from upload to final
+                    delivery.
                   </p>
                 </div>
               </div>
@@ -77,26 +112,37 @@ export default function PhotoDropLandingPage() {
           </div>
         </main>
 
-        <section className="preview-section">
-          <div className="preview-image">
-            <div className="preview-overlay">
-              <div className="preview-badge">Clean dashboard preview</div>
+        <section className="previewSection">
+          <div className="previewImage">
+            <div className="previewOverlay">
+              <div className="previewBadge">Clean dashboard preview</div>
             </div>
           </div>
         </section>
 
         <section className="features" id="platform">
-          <div className="feature-card">
+          <div className="featureCard">
             <h3>Fast uploads</h3>
-            <p>Quickly send photos into organized client folders without messy workflows.</p>
+            <p>
+              Quickly send photos into organized client folders without messy
+              workflows.
+            </p>
           </div>
-          <div className="feature-card">
+
+          <div className="featureCard">
             <h3>Professional delivery</h3>
-            <p>Give customers a modern login experience that feels clean and trustworthy.</p>
+            <p>
+              Give customers a modern login experience that feels clean and
+              trustworthy.
+            </p>
           </div>
-          <div className="feature-card">
+
+          <div className="featureCard">
             <h3>Simple organization</h3>
-            <p>Keep every property, project, or business neatly sorted in one platform.</p>
+            <p>
+              Keep every property, project, or business neatly sorted in one
+              platform.
+            </p>
           </div>
         </section>
       </div>
@@ -116,7 +162,7 @@ export default function PhotoDropLandingPage() {
         .page {
           min-height: 100vh;
           background:
-            radial-gradient(circle at top left, rgba(255,255,255,0.8), transparent 28%),
+            radial-gradient(circle at top left, rgba(255, 255, 255, 0.8), transparent 28%),
             linear-gradient(180deg, #faf7f0 0%, #f3ecdf 100%);
         }
 
@@ -128,7 +174,7 @@ export default function PhotoDropLandingPage() {
           justify-content: space-between;
           gap: 20px;
           padding: 26px 24px;
-          background: rgba(255,255,255,0.82);
+          background: rgba(255, 255, 255, 0.82);
           border-bottom: 1px solid rgba(24, 32, 42, 0.08);
           position: sticky;
           top: 0;
@@ -137,6 +183,7 @@ export default function PhotoDropLandingPage() {
         }
 
         .brand {
+          text-decoration: none;
           font-size: 40px;
           font-weight: 800;
           letter-spacing: -0.04em;
@@ -149,7 +196,7 @@ export default function PhotoDropLandingPage() {
           flex-wrap: wrap;
         }
 
-        .nav a {
+        .navLink {
           text-decoration: none;
           color: #31456a;
           font-weight: 700;
@@ -165,7 +212,10 @@ export default function PhotoDropLandingPage() {
         }
 
         .btn {
-          border: none;
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+          text-decoration: none;
           border-radius: 16px;
           padding: 12px 20px;
           font-size: 16px;
@@ -179,20 +229,22 @@ export default function PhotoDropLandingPage() {
         }
 
         .btn-outline {
-          background: white;
+          background: #ffffff;
           border: 2px solid #2a2f36;
           color: #111827;
         }
 
         .btn-primary {
           background: #efc93f;
+          border: 2px solid transparent;
           color: #18202a;
           box-shadow: 0 8px 22px rgba(164, 129, 20, 0.18);
         }
 
         .btn-secondary {
           background: #48ae4d;
-          color: white;
+          border: 2px solid transparent;
+          color: #ffffff;
           box-shadow: 0 8px 22px rgba(38, 120, 42, 0.2);
         }
 
@@ -231,7 +283,7 @@ export default function PhotoDropLandingPage() {
           margin-bottom: 14px;
         }
 
-        .hero h1 {
+        .heroTitle {
           margin: 0;
           font-size: clamp(48px, 7vw, 86px);
           line-height: 0.98;
@@ -249,30 +301,30 @@ export default function PhotoDropLandingPage() {
           color: #3f4752;
         }
 
-        .hero-buttons {
+        .heroButtons {
           display: flex;
           gap: 18px;
           margin-top: 36px;
           flex-wrap: wrap;
         }
 
-        .hero-card {
+        .heroCard {
           display: flex;
           justify-content: center;
         }
 
-        .dashboard-window {
+        .dashboardWindow {
           width: 100%;
           max-width: 500px;
-          background: rgba(255,255,255,0.78);
-          border: 1px solid rgba(24,32,42,0.08);
+          background: rgba(255, 255, 255, 0.78);
+          border: 1px solid rgba(24, 32, 42, 0.08);
           border-radius: 30px;
           padding: 24px;
           box-shadow: 0 24px 60px rgba(57, 56, 45, 0.14);
           backdrop-filter: blur(10px);
         }
 
-        .window-top {
+        .windowTop {
           display: flex;
           justify-content: space-between;
           gap: 18px;
@@ -280,20 +332,20 @@ export default function PhotoDropLandingPage() {
           margin-bottom: 20px;
         }
 
-        .window-top h3 {
+        .windowTitle {
           margin: 4px 0 0;
           font-size: 28px;
         }
 
-        .mini-label,
-        .panel-label,
-        .metric-copy,
-        .small-copy {
+        .miniLabel,
+        .panelLabel,
+        .metricCopy,
+        .smallCopy {
           margin: 0;
         }
 
-        .mini-label,
-        .panel-label {
+        .miniLabel,
+        .panelLabel {
           color: #657184;
           font-size: 13px;
           font-weight: 700;
@@ -301,7 +353,7 @@ export default function PhotoDropLandingPage() {
           letter-spacing: 0.05em;
         }
 
-        .status-pill {
+        .statusPill {
           display: inline-flex;
           align-items: center;
           background: #eef6eb;
@@ -314,7 +366,7 @@ export default function PhotoDropLandingPage() {
           white-space: nowrap;
         }
 
-        .dashboard-grid {
+        .dashboardGrid {
           display: grid;
           grid-template-columns: 1fr 1fr;
           gap: 18px;
@@ -322,22 +374,22 @@ export default function PhotoDropLandingPage() {
 
         .panel {
           background: #ffffff;
-          border: 1px solid rgba(24,32,42,0.08);
+          border: 1px solid rgba(24, 32, 42, 0.08);
           border-radius: 22px;
           padding: 18px;
         }
 
-        .panel-highlight {
+        .panelHighlight {
           background: linear-gradient(180deg, #eff7eb 0%, #f8fbf6 100%);
         }
 
-        .folder-list {
+        .folderList {
           margin-top: 14px;
           display: grid;
           gap: 12px;
         }
 
-        .folder-row {
+        .folderRow {
           display: flex;
           align-items: center;
           justify-content: space-between;
@@ -356,13 +408,13 @@ export default function PhotoDropLandingPage() {
           color: #102219;
         }
 
-        .metric-copy {
+        .metricCopy {
           margin-top: 8px;
           color: #475467;
           font-size: 15px;
         }
 
-        .progress-track {
+        .progressTrack {
           height: 12px;
           width: 100%;
           margin-top: 18px;
@@ -371,49 +423,49 @@ export default function PhotoDropLandingPage() {
           overflow: hidden;
         }
 
-        .progress-fill {
+        .progressFill {
           height: 100%;
           width: 94%;
           background: linear-gradient(90deg, #48ae4d, #2f8b36);
           border-radius: 999px;
         }
 
-        .small-copy {
+        .smallCopy {
           margin-top: 14px;
           color: #4c5768;
           font-size: 15px;
           line-height: 1.6;
         }
 
-        .preview-section {
+        .previewSection {
           max-width: 1200px;
           margin: 0 auto;
           padding: 12px 24px 0;
         }
 
-        .preview-image {
+        .previewImage {
           height: 420px;
           border-radius: 28px;
           overflow: hidden;
           position: relative;
           background:
-            linear-gradient(rgba(0,0,0,0.18), rgba(0,0,0,0.18)),
+            linear-gradient(rgba(0, 0, 0, 0.18), rgba(0, 0, 0, 0.18)),
             linear-gradient(135deg, #6c8d4d 0%, #c7a54a 45%, #7a9e4f 100%);
           box-shadow: 0 22px 50px rgba(71, 63, 34, 0.18);
         }
 
-        .preview-overlay {
+        .previewOverlay {
           position: absolute;
           inset: 0;
           display: flex;
           align-items: flex-start;
           justify-content: flex-start;
           padding: 28px;
-          background: linear-gradient(180deg, rgba(0,0,0,0.18), rgba(0,0,0,0.02));
+          background: linear-gradient(180deg, rgba(0, 0, 0, 0.18), rgba(0, 0, 0, 0.02));
         }
 
-        .preview-badge {
-          background: rgba(255,255,255,0.88);
+        .previewBadge {
+          background: rgba(255, 255, 255, 0.88);
           color: #1a2230;
           padding: 12px 18px;
           border-radius: 999px;
@@ -430,20 +482,20 @@ export default function PhotoDropLandingPage() {
           gap: 22px;
         }
 
-        .feature-card {
-          background: rgba(255,255,255,0.76);
-          border: 1px solid rgba(24,32,42,0.08);
+        .featureCard {
+          background: rgba(255, 255, 255, 0.76);
+          border: 1px solid rgba(24, 32, 42, 0.08);
           border-radius: 24px;
           padding: 26px;
           box-shadow: 0 12px 30px rgba(70, 62, 39, 0.08);
         }
 
-        .feature-card h3 {
+        .featureCard h3 {
           margin: 0 0 10px;
           font-size: 24px;
         }
 
-        .feature-card p {
+        .featureCard p {
           margin: 0;
           font-size: 16px;
           line-height: 1.7;
@@ -459,11 +511,7 @@ export default function PhotoDropLandingPage() {
             grid-template-columns: 1fr;
           }
 
-          .hero h1 {
-            max-width: 100%;
-          }
-
-          .dashboard-grid,
+          .dashboardGrid,
           .features {
             grid-template-columns: 1fr;
           }
@@ -474,19 +522,7 @@ export default function PhotoDropLandingPage() {
             font-size: 32px;
           }
 
-          .nav {
-            gap: 16px;
-          }
-
-          .nav a {
-            font-size: 12px;
-          }
-
-          .hero {
-            padding-top: 42px;
-          }
-
-          .hero h1 {
+          .heroTitle {
             font-size: 46px;
           }
 
@@ -494,11 +530,11 @@ export default function PhotoDropLandingPage() {
             font-size: 18px;
           }
 
-          .window-top {
+          .windowTop {
             flex-direction: column;
           }
 
-          .preview-image {
+          .previewImage {
             height: 280px;
           }
         }

@@ -1,24 +1,19 @@
-export const runtime = 'edge';
-
 import { NextRequest, NextResponse } from 'next/server';
+
+export const runtime = 'edge';
 
 export async function GET(req: NextRequest) {
   const code = req.nextUrl.searchParams.get('code');
   const error = req.nextUrl.searchParams.get('error');
+  const iss = req.nextUrl.searchParams.get('iss');
 
-  if (error) {
-    return NextResponse.redirect(
-      new URL(`/dashboard?google_error=${encodeURIComponent(error)}`, req.url)
-    );
-  }
-
-  if (!code) {
-    return NextResponse.redirect(
-      new URL('/dashboard?google_error=missing_code', req.url)
-    );
-  }
-
-  return NextResponse.redirect(
-    new URL('/dashboard?google_connected=1', req.url)
-  );
+  return NextResponse.json({
+    ok: true,
+    hasCode: !!code,
+    error,
+    iss,
+    redirectUri: process.env.GOOGLE_REDIRECT_URI ?? null,
+    hasClientId: !!process.env.GOOGLE_CLIENT_ID,
+    hasClientSecret: !!process.env.GOOGLE_CLIENT_SECRET,
+  });
 }

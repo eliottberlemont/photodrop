@@ -3,8 +3,7 @@
 export default function Dashboard() {
   const handleConnect = () => {
     const params = new URLSearchParams({
-      client_id:
-        '49971326628-6k88qg5298sd3o5eo1m9ltnkqv5sjelm.apps.googleusercontent.com',
+      client_id: '49971326628-i70ptj87qfq956e0h864qpl21r7el37m.apps.googleusercontent.com',
       redirect_uri: `${window.location.origin}/api/google/callback`,
       response_type: 'code',
       scope: 'https://www.googleapis.com/auth/drive.file',
@@ -34,7 +33,9 @@ export default function Dashboard() {
           Upload Photos
         </a>
 
-        <button className="border p-4 rounded-xl">View Galleries</button>
+        <button className="border p-4 rounded-xl">
+          View Galleries
+        </button>
       </div>
     </main>
   );

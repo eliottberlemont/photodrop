@@ -1,3 +1,4 @@
+// version 3 callback
 export const runtime = 'edge';
 
 import { NextRequest, NextResponse } from 'next/server';

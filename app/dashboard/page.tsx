@@ -1,15 +1,14 @@
 'use client'
 
 export default function Dashboard() {
-const handleConnect = () => {
-  const params = new URLSearchParams({
-    client_id: process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID!,
-    redirect_uri: `${window.location.origin}/api/google/callback`,
-    response_type: 'code',
-    scope: 'https://www.googleapis.com/auth/drive.file',
-    access_type: 'offline',
-    prompt: 'consent',
-  })
+const params = new URLSearchParams({
+  client_id: '49971326628-6k88qg5298sd3o5eo1m9ltnkqv5sjelm.apps.googleusercontent.com',
+  redirect_uri: `${window.location.origin}/api/google/callback`,
+  response_type: 'code',
+  scope: 'https://www.googleapis.com/auth/drive.file',
+  access_type: 'offline',
+  prompt: 'consent',
+})
 
   window.location.href = `https://accounts.google.com/o/oauth2/v2/auth?${params.toString()}`
 }

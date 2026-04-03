@@ -1,17 +1,19 @@
-'use client'
+'use client';
 
 export default function Dashboard() {
-const params = new URLSearchParams({
-  client_id: '49971326628-6k88qg5298sd3o5eo1m9ltnkqv5sjelm.apps.googleusercontent.com',
-  redirect_uri: `${window.location.origin}/api/google/callback`,
-  response_type: 'code',
-  scope: 'https://www.googleapis.com/auth/drive.file',
-  access_type: 'offline',
-  prompt: 'consent',
-})
+  const handleConnect = () => {
+    const params = new URLSearchParams({
+      client_id:
+        '49971326628-6k88qg5298sd3o5eo1m9ltnkqv5sjelm.apps.googleusercontent.com',
+      redirect_uri: `${window.location.origin}/api/google/callback`,
+      response_type: 'code',
+      scope: 'https://www.googleapis.com/auth/drive.file',
+      access_type: 'offline',
+      prompt: 'consent',
+    });
 
-  window.location.href = `https://accounts.google.com/o/oauth2/v2/auth?${params.toString()}`
-}
+    window.location.href = `https://accounts.google.com/o/oauth2/v2/auth?${params.toString()}`;
+  };
 
   return (
     <main className="min-h-screen bg-black text-white p-8">
@@ -32,10 +34,8 @@ const params = new URLSearchParams({
           Upload Photos
         </a>
 
-        <button className="border p-4 rounded-xl">
-          View Galleries
-        </button>
+        <button className="border p-4 rounded-xl">View Galleries</button>
       </div>
     </main>
-  )
+  );
 }

@@ -1,3 +1,6 @@
+
+export const runtime = 'edge';
+
 import type { NextApiRequest, NextApiResponse } from 'next';
 
 function getBaseUrl(req: NextApiRequest) {

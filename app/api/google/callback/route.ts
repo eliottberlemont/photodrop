@@ -1,25 +1,23 @@
-// version 3 callback
 export const runtime = 'edge';
 
-import { NextRequest, NextResponse } from 'next/server';
-
-export async function GET(req: NextRequest) {
-  const code = req.nextUrl.searchParams.get('code');
-  const error = req.nextUrl.searchParams.get('error');
+export async function GET(req: Request) {
+  const url = new URL(req.url);
+  const code = url.searchParams.get('code');
+  const error = url.searchParams.get('error');
 
   if (error) {
-    return NextResponse.redirect(
-      new URL(`/dashboard?google_error=${encodeURIComponent(error)}`, req.url)
+    return Response.redirect(
+      new URL(`/dashboard?google_error=${encodeURIComponent(error)}`, url.origin)
     );
   }
 
   if (!code) {
-    return NextResponse.redirect(
-      new URL('/dashboard?google_error=missing_code', req.url)
+    return Response.redirect(
+      new URL('/dashboard?google_error=missing_code', url.origin)
     );
   }
 
-  return NextResponse.redirect(
-    new URL('/dashboard?google_connected=1', req.url)
+  return Response.redirect(
+    new URL('/dashboard?google_connected=1', url.origin)
   );
 }

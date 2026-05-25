@@ -13,7 +13,7 @@ export default function Dashboard() {
   const handleConnect = () => {
     if (!userId) return;
     const params = new URLSearchParams({
-      client_id: process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID!,
+      client_id: '49971326628-i70ptj87qfq956e0h864qpl21r7el37m.apps.googleusercontent.com',
       redirect_uri: `${window.location.origin}/api/google/callback`,
       response_type: 'code',
       scope: 'https://www.googleapis.com/auth/drive.file',

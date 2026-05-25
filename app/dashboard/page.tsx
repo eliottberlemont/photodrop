@@ -1,16 +1,26 @@
 'use client';
 
+import { useEffect, useState } from 'react';
+import { getSupabase } from '@/lib/supabase';
+
 export default function Dashboard() {
+  const [userId, setUserId] = useState<string | null>(null);
+
+  useEffect(() => {
+    getSupabase().auth.getUser().then(({ data }) => setUserId(data.user?.id ?? null));
+  }, []);
+
   const handleConnect = () => {
+    if (!userId) return;
     const params = new URLSearchParams({
-      client_id: '49971326628-i70ptj87qfq956e0h864qpl21r7el37m.apps.googleusercontent.com',
+      client_id: process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID!,
       redirect_uri: `${window.location.origin}/api/google/callback`,
       response_type: 'code',
       scope: 'https://www.googleapis.com/auth/drive.file',
       access_type: 'offline',
       prompt: 'consent',
+      state: userId,
     });
-
     window.location.href = `https://accounts.google.com/o/oauth2/v2/auth?${params.toString()}`;
   };
 
@@ -21,7 +31,8 @@ export default function Dashboard() {
       <div className="grid gap-4 max-w-md">
         <button
           onClick={handleConnect}
-          className="bg-green-500 text-black p-4 rounded-xl"
+          disabled={!userId}
+          className="bg-green-500 text-black p-4 rounded-xl disabled:opacity-50"
         >
           Connect Google Drive
         </button>

@@ -9,13 +9,14 @@ interface Business {
 }
 
 export default function UploadPage() {
-  const [file, setFile] = useState<File | null>(null);
+  const [files, setFiles] = useState<File[]>([]);
   const [eventName, setEventName] = useState('');
   const [customerEmail, setCustomerEmail] = useState('');
   const [businessId, setBusinessId] = useState('');
   const [businesses, setBusinesses] = useState<Business[]>([]);
   const [token, setToken] = useState<string | null>(null);
   const [uploading, setUploading] = useState(false);
+  const [progress, setProgress] = useState('');
 
   useEffect(() => {
     async function init() {
@@ -35,8 +36,8 @@ export default function UploadPage() {
   }, []);
 
   const handleUpload = async () => {
-    if (!file || !eventName || !customerEmail) {
-      alert('Please fill in all fields and select a file.');
+    if (files.length === 0 || !eventName || !customerEmail) {
+      alert('Please fill in all fields and select at least one file.');
       return;
     }
     if (!token) {
@@ -45,33 +46,41 @@ export default function UploadPage() {
     }
 
     setUploading(true);
+    let folderPath = '';
     try {
-      const fd = new FormData();
-      fd.append('file', file);
-      fd.append('event_name', eventName);
-      fd.append('customer_email', customerEmail);
-      if (businessId) fd.append('business_id', businessId);
+      for (let i = 0; i < files.length; i++) {
+        setProgress(`Uploading ${i + 1} / ${files.length}…`);
+        const fd = new FormData();
+        fd.append('file', files[i]);
+        fd.append('event_name', eventName);
+        fd.append('customer_email', customerEmail);
+        fd.append('send_email', i === files.length - 1 ? 'true' : 'false');
+        if (businessId) fd.append('business_id', businessId);
 
-      const res = await fetch('/api/google/upload', {
-        method: 'POST',
-        headers: { Authorization: `Bearer ${token}` },
-        body: fd,
-      });
-      const data = await res.json();
+        const res = await fetch('/api/google/upload', {
+          method: 'POST',
+          headers: { Authorization: `Bearer ${token}` },
+          body: fd,
+        });
+        const data = await res.json();
 
-      if (!res.ok) {
-        alert(data.error || 'Upload failed.');
-        return;
+        if (!res.ok) {
+          alert(`File ${i + 1} failed: ${data.error || 'Upload failed.'}`);
+          return;
+        }
+        folderPath = data.folderPath;
       }
 
-      alert(`Uploaded to ${data.folderPath}. Customer notification sent.`);
-      setFile(null);
+      alert(`${files.length} photo${files.length > 1 ? 's' : ''} uploaded to ${folderPath}. Customer notified.`);
+      setFiles([]);
       setEventName('');
       setCustomerEmail('');
+      setProgress('');
     } catch {
       alert('Something went wrong during upload.');
     } finally {
       setUploading(false);
+      setProgress('');
     }
   };
 
@@ -121,8 +130,14 @@ export default function UploadPage() {
         <input
           type="file"
           accept="image/*"
-          onChange={(e) => setFile(e.target.files?.[0] || null)}
+          multiple
+          onChange={(e) => setFiles(e.target.files ? Array.from(e.target.files) : [])}
         />
+        {files.length > 0 && (
+          <div style={{ fontSize: '13px', color: '#666' }}>
+            {files.length} file{files.length > 1 ? 's' : ''} selected
+          </div>
+        )}
 
         <button
           onClick={handleUpload}
@@ -133,7 +148,7 @@ export default function UploadPage() {
             opacity: !token ? 0.5 : 1,
           }}
         >
-          {uploading ? 'Uploading...' : 'Upload'}
+          {uploading ? (progress || 'Uploading…') : 'Upload'}
         </button>
       </div>
     </div>

@@ -30,6 +30,8 @@ export async function POST(req: Request) {
     const customerEmail = (formData.get("customer_email") as string | null)?.trim();
     const businessId = (formData.get("business_id") as string | null) ?? null;
 
+    const sendEmail = (formData.get("send_email") as string | null) !== "false";
+
     if (!file || !eventName || !customerEmail) {
       return new Response(
         JSON.stringify({ error: "file, event_name, and customer_email are required" }),
@@ -80,6 +82,12 @@ export async function POST(req: Request) {
     });
 
     // 9. Email the customer via Resend (non-fatal — upload is already done)
+    if (!sendEmail) {
+      return new Response(
+        JSON.stringify({ success: true, fileId: driveFileId, folderPath: folderPath.join("/") }),
+        { status: 200 }
+      );
+    }
     try {
       await fetch("https://api.resend.com/emails", {
         method: "POST",

@@ -1,7 +1,5 @@
 export const runtime = "edge";
 
-import { getSupabaseAdmin } from "@/lib/supabase-admin";
-
 function redirect(base: string, qs: string): Response {
   return new Response(null, {
     status: 302,
@@ -20,6 +18,7 @@ export async function GET(req: Request) {
     if (error) return redirect(base, `google_error=${encodeURIComponent(error)}`);
     if (!code || !state) return redirect(base, "google_error=missing_code");
 
+    // Exchange code for tokens
     const tokenRes = await fetch("https://oauth2.googleapis.com/token", {
       method: "POST",
       headers: { "Content-Type": "application/x-www-form-urlencoded" },
@@ -40,17 +39,31 @@ export async function GET(req: Request) {
     const { access_token, refresh_token, expires_in } = await tokenRes.json();
     const token_expiry = new Date(Date.now() + expires_in * 1000).toISOString();
 
-    const { error: dbError } = await getSupabaseAdmin()
-      .from("google_tokens")
-      .upsert({
+    // Store tokens via Supabase REST API (no SDK — avoids edge runtime import issues)
+    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
+    const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY!;
+
+    const upsertRes = await fetch(`${supabaseUrl}/rest/v1/google_tokens`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${serviceKey}`,
+        "apikey": serviceKey,
+        "Prefer": "resolution=merge-duplicates,return=minimal",
+      },
+      body: JSON.stringify({
         user_id: state,
         access_token,
         refresh_token,
         token_expiry,
         updated_at: new Date().toISOString(),
-      });
+      }),
+    });
 
-    if (dbError) return redirect(base, `google_error=${encodeURIComponent(dbError.message)}`);
+    if (!upsertRes.ok) {
+      const errText = await upsertRes.text();
+      return redirect(base, `google_error=${encodeURIComponent(errText)}`);
+    }
 
     return redirect(base, "google_connected=1");
   } catch (err) {

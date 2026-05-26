@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { getSupabase } from '@/lib/supabase';
 import Link from 'next/link';
@@ -105,9 +105,11 @@ export default function Dashboard() {
 
   // Messages tab state
   const [bannerUrl, setBannerUrl] = useState('');
+  const [bannerUploading, setBannerUploading] = useState(false);
   const [customText, setCustomText] = useState('');
   const [msgSaveMsg, setMsgSaveMsg] = useState('');
   const [msgSaving, setMsgSaving] = useState(false);
+  const bannerInputRef = useRef<HTMLInputElement>(null);
 
   // Settings tab state
   const [newEmail, setNewEmail] = useState('');
@@ -173,6 +175,29 @@ export default function Dashboard() {
   const handleSignOut = async () => {
     await getSupabase().auth.signOut();
     router.push('/');
+  };
+
+  const handleBannerUpload = async (file: File) => {
+    if (!userId) return;
+    setBannerUploading(true);
+    setMsgSaveMsg('');
+    const ext = file.name.split('.').pop() ?? 'jpg';
+    const path = `${userId}/banner.${ext}`;
+    const supabase = getSupabase();
+    const { error: upErr } = await supabase.storage.from('banners').upload(path, file, { upsert: true });
+    if (upErr) { setMsgSaveMsg(`Error: ${upErr.message}`); setBannerUploading(false); return; }
+    const { data: { publicUrl } } = supabase.storage.from('banners').getPublicUrl(path);
+    setBannerUrl(publicUrl);
+    const { error: dbErr } = await supabase.from('user_settings').upsert({ user_id: userId, email_banner_url: publicUrl, email_custom_text: customText || null, updated_at: new Date().toISOString() });
+    setBannerUploading(false);
+    setMsgSaveMsg(dbErr ? `Error saving: ${dbErr.message}` : 'Banner saved.');
+  };
+
+  const removeBanner = async () => {
+    if (!userId) return;
+    setBannerUrl('');
+    await getSupabase().from('user_settings').upsert({ user_id: userId, email_banner_url: null, email_custom_text: customText || null, updated_at: new Date().toISOString() });
+    setMsgSaveMsg('Banner removed.');
   };
 
   const saveMessages = async () => {
@@ -357,9 +382,28 @@ export default function Dashboard() {
                 <div style={card}>
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
                     <div>
-                      <label style={fieldLabel}>Banner image URL</label>
-                      <input style={fieldInput} type="url" placeholder="https://your-site.com/banner.jpg" value={bannerUrl} onChange={e => setBannerUrl(e.target.value)} />
-                      {bannerUrl && <img src={bannerUrl} alt="Preview" style={{ marginTop: '10px', maxWidth: '100%', maxHeight: '120px', objectFit: 'cover', borderRadius: '8px', display: 'block' }} />}
+                      <label style={fieldLabel}>Banner image</label>
+                      <input ref={bannerInputRef} type="file" accept="image/*" style={{ display: 'none' }} onChange={e => { const f = e.target.files?.[0]; if (f) handleBannerUpload(f); }} />
+                      {bannerUrl ? (
+                        <div>
+                          <img src={bannerUrl} alt="Banner" style={{ maxWidth: '100%', maxHeight: '130px', objectFit: 'cover', borderRadius: '10px', display: 'block', marginBottom: '10px' }} />
+                          <div style={{ display: 'flex', gap: '8px' }}>
+                            <button type="button" onClick={() => bannerInputRef.current?.click()} disabled={bannerUploading} style={{ padding: '7px 16px', borderRadius: '999px', border: '1.5px solid #e2e8f0', background: 'white', fontSize: '13px', fontWeight: 600, color: '#0f172a', cursor: 'pointer' }}>
+                              {bannerUploading ? 'Uploading…' : 'Change image'}
+                            </button>
+                            <button type="button" onClick={removeBanner} style={{ padding: '7px 16px', borderRadius: '999px', border: '1.5px solid #fecaca', background: 'white', fontSize: '13px', fontWeight: 600, color: '#ef4444', cursor: 'pointer' }}>
+                              Remove
+                            </button>
+                          </div>
+                        </div>
+                      ) : (
+                        <div
+                          onClick={() => !bannerUploading && bannerInputRef.current?.click()}
+                          style={{ border: '2px dashed #d1d5db', borderRadius: '10px', padding: '28px', textAlign: 'center' as const, cursor: bannerUploading ? 'not-allowed' : 'pointer', background: '#fafafa', color: bannerUploading ? '#94a3b8' : '#64748b', fontSize: '14px' }}
+                        >
+                          {bannerUploading ? 'Uploading…' : 'Click to upload a banner image'}
+                        </div>
+                      )}
                     </div>
                     <div>
                       <label style={fieldLabel}>Custom message</label>

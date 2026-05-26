@@ -9,12 +9,25 @@ export default function Dashboard() {
   const router = useRouter();
   const [userId, setUserId] = useState<string | null>(null);
   const [email, setEmail] = useState<string | null>(null);
+  const [driveConnected, setDriveConnected] = useState<boolean | null>(null);
 
   useEffect(() => {
-    getSupabase().auth.getUser().then(({ data }) => {
-      setUserId(data.user?.id ?? null);
-      setEmail(data.user?.email ?? null);
-    });
+    async function init() {
+      const supabase = getSupabase();
+      const { data: { user } } = await supabase.auth.getUser();
+      setUserId(user?.id ?? null);
+      setEmail(user?.email ?? null);
+
+      if (user) {
+        const { data } = await supabase
+          .from('google_tokens')
+          .select('user_id')
+          .eq('user_id', user.id)
+          .maybeSingle();
+        setDriveConnected(!!data);
+      }
+    }
+    init();
   }, []);
 
   const handleConnect = () => {
@@ -111,26 +124,31 @@ export default function Dashboard() {
             </div>
           </Link>
 
-          {/* Connect Google Drive */}
-          <button
-            onClick={handleConnect}
-            disabled={!userId}
-            style={{
-              ...cardBase,
-              width: '100%',
-              textAlign: 'left',
-              opacity: userId ? 1 : 0.6,
-              cursor: userId ? 'pointer' : 'not-allowed',
-            }}
-          >
-            <div style={{ width: '44px', height: '44px', borderRadius: '12px', background: '#f0fdf4', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '22px', flexShrink: 0 }}>
-              🔗
+          {/* Google Drive status */}
+          {driveConnected ? (
+            <div style={{ ...cardBase, cursor: 'default' }}>
+              <div style={{ width: '44px', height: '44px', borderRadius: '12px', background: '#f0fdf4', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '22px', flexShrink: 0 }}>
+                ✅
+              </div>
+              <div>
+                <div style={{ fontWeight: 700, fontSize: '16px', color: '#16a34a' }}>Google Drive connected</div>
+                <div style={{ fontSize: '13px', color: '#64748b', marginTop: '2px' }}>Photos will be saved to your Drive</div>
+              </div>
             </div>
-            <div>
-              <div style={{ fontWeight: 700, fontSize: '16px' }}>Connect Google Drive</div>
-              <div style={{ fontSize: '13px', color: '#64748b', marginTop: '2px' }}>Authorise photo storage</div>
-            </div>
-          </button>
+          ) : driveConnected === false ? (
+            <button
+              onClick={handleConnect}
+              style={{ ...cardBase, width: '100%', textAlign: 'left' }}
+            >
+              <div style={{ width: '44px', height: '44px', borderRadius: '12px', background: '#f0fdf4', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '22px', flexShrink: 0 }}>
+                🔗
+              </div>
+              <div>
+                <div style={{ fontWeight: 700, fontSize: '16px' }}>Connect Google Drive</div>
+                <div style={{ fontSize: '13px', color: '#64748b', marginTop: '2px' }}>Authorise photo storage</div>
+              </div>
+            </button>
+          ) : null}
         </div>
       </main>
     </div>

@@ -161,7 +161,7 @@ export default function SettingsPage() {
     setRetentionMsg('');
     const supabase = getSupabase();
 
-    const ops: Promise<unknown>[] = [
+    const [settingsResult, ...bizResults] = await Promise.all([
       supabase.from('user_settings').upsert({
         user_id: userId,
         default_retention_days: defaultRetention,
@@ -170,10 +170,9 @@ export default function SettingsPage() {
       ...businesses.map(b =>
         supabase.from('businesses').update({ retention_days: bizRetention[b.id] }).eq('id', b.id)
       ),
-    ];
+    ]);
 
-    const results = await Promise.all(ops);
-    const anyError = results.some((r: any) => r.error);
+    const anyError = settingsResult.error || bizResults.some(r => r.error);
     setRetentionLoading(false);
     setRetentionMsg(anyError ? 'Error saving retention settings.' : 'Retention settings saved.');
   };

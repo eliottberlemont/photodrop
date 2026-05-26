@@ -77,6 +77,7 @@ export async function POST(req: Request) {
       drive_file_id: driveFileId,
       file_name: file.name,
       drive_folder_path: folderPath.join("/"),
+      folder_link: folderLink,
       customer_email: customerEmail,
       expires_at: expiresAt,
     });

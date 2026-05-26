@@ -52,6 +52,7 @@ export default function LoginPage() {
   const router = useRouter();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [remember, setRemember] = useState(true);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
@@ -63,6 +64,13 @@ export default function LoginPage() {
     if (error) {
       setError(error.message);
     } else {
+      if (remember) {
+        localStorage.setItem('pd_remember', '1');
+        sessionStorage.removeItem('pd_active');
+      } else {
+        sessionStorage.setItem('pd_active', '1');
+        localStorage.removeItem('pd_remember');
+      }
       router.push('/dashboard');
     }
   };
@@ -100,6 +108,16 @@ export default function LoginPage() {
               onKeyDown={(e) => e.key === 'Enter' && handleLogin()}
             />
           </div>
+
+          <label style={{ display: 'flex', alignItems: 'center', gap: '10px', cursor: 'pointer', userSelect: 'none' as const }}>
+            <input
+              type="checkbox"
+              checked={remember}
+              onChange={e => setRemember(e.target.checked)}
+              style={{ width: '16px', height: '16px', accentColor: '#3b82f6', cursor: 'pointer' }}
+            />
+            <span style={{ fontSize: '14px', color: '#64748b' }}>Keep me logged in</span>
+          </label>
 
           {error && (
             <p style={{ margin: 0, fontSize: '14px', color: '#ef4444' }}>{error}</p>

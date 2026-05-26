@@ -99,6 +99,11 @@ export default function SettingsPage() {
       const supabase = getSupabase();
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) { router.push('/login'); return; }
+      if (!localStorage.getItem('pd_remember') && !sessionStorage.getItem('pd_active')) {
+        await supabase.auth.signOut();
+        router.push('/login');
+        return;
+      }
       setUserId(user.id);
       setUserEmail(user.email ?? '');
       setNewEmail(user.email ?? '');

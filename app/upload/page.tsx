@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { getSupabase } from '@/lib/supabase';
 import Link from 'next/link';
 
@@ -10,6 +11,7 @@ interface Business {
 }
 
 export default function UploadPage() {
+  const router = useRouter();
   const [files, setFiles] = useState<File[]>([]);
   const [eventName, setEventName] = useState('');
   const [customerEmails, setCustomerEmails] = useState<string[]>([]);
@@ -25,18 +27,22 @@ export default function UploadPage() {
     async function init() {
       const supabase = getSupabase();
       const { data: { session } } = await supabase.auth.getSession();
-      setToken(session?.access_token ?? null);
-
-      if (session) {
-        const { data } = await supabase
-          .from('businesses')
-          .select('id, name')
-          .eq('owner_id', session.user.id);
-        setBusinesses((data as Business[]) ?? []);
+      if (!session) { router.push('/login'); return; }
+      if (!localStorage.getItem('pd_remember') && !sessionStorage.getItem('pd_active')) {
+        await supabase.auth.signOut();
+        router.push('/login');
+        return;
       }
+      setToken(session.access_token);
+
+      const { data } = await supabase
+        .from('businesses')
+        .select('id, name')
+        .eq('owner_id', session.user.id);
+      setBusinesses((data as Business[]) ?? []);
     }
     init();
-  }, []);
+  }, [router]);
 
   const addEmail = () => {
     const e = emailInput.trim().toLowerCase();

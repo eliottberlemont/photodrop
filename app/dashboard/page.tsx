@@ -126,6 +126,11 @@ export default function Dashboard() {
       const supabase = getSupabase();
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) { router.push('/login'); return; }
+      if (!localStorage.getItem('pd_remember') && !sessionStorage.getItem('pd_active')) {
+        await supabase.auth.signOut();
+        router.push('/login');
+        return;
+      }
       setUserId(user.id);
       setUserEmail(user.email ?? '');
       setNewEmail(user.email ?? '');
@@ -173,6 +178,8 @@ export default function Dashboard() {
   };
 
   const handleSignOut = async () => {
+    localStorage.removeItem('pd_remember');
+    sessionStorage.removeItem('pd_active');
     await getSupabase().auth.signOut();
     router.push('/');
   };

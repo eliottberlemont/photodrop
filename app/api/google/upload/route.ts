@@ -27,14 +27,15 @@ export async function POST(req: Request) {
     const formData = await req.formData();
     const file = formData.get("file") as File | null;
     const eventName = (formData.get("event_name") as string | null)?.trim();
-    const customerEmail = (formData.get("customer_email") as string | null)?.trim();
+    const customerEmailsRaw = (formData.get("customer_emails") as string | null)?.trim();
+    const customerEmails = customerEmailsRaw ? customerEmailsRaw.split(",").map(e => e.trim()).filter(Boolean) : [];
     const businessId = (formData.get("business_id") as string | null) ?? null;
 
     const sendEmail = (formData.get("send_email") as string | null) !== "false";
 
-    if (!file || !eventName || !customerEmail) {
+    if (!file || !eventName || customerEmails.length === 0) {
       return new Response(
-        JSON.stringify({ error: "file, event_name, and customer_email are required" }),
+        JSON.stringify({ error: "file, event_name, and customer_emails are required" }),
         { status: 400 }
       );
     }
@@ -77,18 +78,20 @@ export async function POST(req: Request) {
     // 7. Upload file into that folder
     const driveFileId = await uploadFileToDrive(file, folderId, accessToken);
 
-    // 8. Record the upload with its expiry date
+    // 8. Record one row per customer email
     const expiresAt = new Date(Date.now() + retentionDays * 86_400_000).toISOString();
-    await admin.from("uploaded_files").insert({
-      user_id: user.id,
-      business_id: businessId,
-      drive_file_id: driveFileId,
-      file_name: file.name,
-      drive_folder_path: folderPath.join("/"),
-      folder_link: folderLink,
-      customer_email: customerEmail,
-      expires_at: expiresAt,
-    });
+    await admin.from("uploaded_files").insert(
+      customerEmails.map(email => ({
+        user_id: user.id,
+        business_id: businessId,
+        drive_file_id: driveFileId,
+        file_name: file.name,
+        drive_folder_path: folderPath.join("/"),
+        folder_link: folderLink,
+        customer_email: email,
+        expires_at: expiresAt,
+      }))
+    );
 
     // 9. Email the customer via Resend (non-fatal — upload is already done)
     if (!sendEmail) {
@@ -106,7 +109,7 @@ export async function POST(req: Request) {
         },
         body: JSON.stringify({
           from: "PhotoDrop <noreply@photodropusa.com>",
-          to: customerEmail,
+          to: customerEmails,
           subject: `Your photos from ${eventName} are ready!`,
           html: `${userSettings?.email_banner_url ? `<img src="${userSettings.email_banner_url}" alt="" style="width:100%;max-width:600px;display:block;margin-bottom:16px;border-radius:8px;" />` : ""}
 <p>Hi there!</p>

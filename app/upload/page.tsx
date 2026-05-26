@@ -12,7 +12,8 @@ interface Business {
 export default function UploadPage() {
   const [files, setFiles] = useState<File[]>([]);
   const [eventName, setEventName] = useState('');
-  const [customerEmail, setCustomerEmail] = useState('');
+  const [customerEmails, setCustomerEmails] = useState<string[]>([]);
+  const [emailInput, setEmailInput] = useState('');
   const [businessId, setBusinessId] = useState('');
   const [businesses, setBusinesses] = useState<Business[]>([]);
   const [token, setToken] = useState<string | null>(null);
@@ -37,9 +38,17 @@ export default function UploadPage() {
     init();
   }, []);
 
+  const addEmail = () => {
+    const e = emailInput.trim().toLowerCase();
+    if (e && !customerEmails.includes(e)) setCustomerEmails(prev => [...prev, e]);
+    setEmailInput('');
+  };
+
+  const removeEmail = (e: string) => setCustomerEmails(prev => prev.filter(x => x !== e));
+
   const handleUpload = async () => {
-    if (files.length === 0 || !eventName || !customerEmail) {
-      alert('Please fill in all fields and select at least one file.');
+    if (files.length === 0 || !eventName || customerEmails.length === 0) {
+      alert('Please fill in all fields, add at least one customer email, and select files.');
       return;
     }
     if (!token) {
@@ -55,7 +64,7 @@ export default function UploadPage() {
         const fd = new FormData();
         fd.append('file', files[i]);
         fd.append('event_name', eventName);
-        fd.append('customer_email', customerEmail);
+        fd.append('customer_emails', customerEmails.join(','));
         fd.append('send_email', i === files.length - 1 ? 'true' : 'false');
         if (businessId) fd.append('business_id', businessId);
 
@@ -73,10 +82,11 @@ export default function UploadPage() {
         folderPath = data.folderPath;
       }
 
-      alert(`${files.length} photo${files.length > 1 ? 's' : ''} uploaded to ${folderPath}. Customer notified.`);
+      alert(`${files.length} photo${files.length > 1 ? 's' : ''} uploaded to ${folderPath}. ${customerEmails.length} customer${customerEmails.length > 1 ? 's' : ''} notified.`);
       setFiles([]);
       setEventName('');
-      setCustomerEmail('');
+      setCustomerEmails([]);
+      setEmailInput('');
       setProgress('');
       if (fileInputRef.current) fileInputRef.current.value = '';
     } catch {
@@ -135,13 +145,26 @@ export default function UploadPage() {
               </div>
 
               <div className="field">
-                <label>Customer email</label>
-                <input
-                  type="email"
-                  placeholder="customer@example.com"
-                  value={customerEmail}
-                  onChange={(e) => setCustomerEmail(e.target.value)}
-                />
+                <label>Customer emails</label>
+                <div style={{ border: '1px solid #d1d5db', borderRadius: '10px', padding: '8px 10px', background: '#fafafa', display: 'flex', flexWrap: 'wrap' as const, gap: '6px', cursor: 'text' }} onClick={() => document.getElementById('email-tag-input')?.focus()}>
+                  {customerEmails.map(e => (
+                    <span key={e} style={{ display: 'inline-flex', alignItems: 'center', gap: '5px', background: '#eff6ff', color: '#1d4ed8', borderRadius: '999px', padding: '3px 10px', fontSize: '13px', fontWeight: 600 }}>
+                      {e}
+                      <button type="button" onClick={() => removeEmail(e)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#64748b', fontSize: '14px', lineHeight: 1, padding: 0 }}>×</button>
+                    </span>
+                  ))}
+                  <input
+                    id="email-tag-input"
+                    type="email"
+                    placeholder={customerEmails.length === 0 ? 'customer@example.com' : 'Add another…'}
+                    value={emailInput}
+                    onChange={e => setEmailInput(e.target.value)}
+                    onKeyDown={e => { if (e.key === 'Enter' || e.key === ',') { e.preventDefault(); addEmail(); } if (e.key === 'Backspace' && !emailInput) removeEmail(customerEmails[customerEmails.length - 1]); }}
+                    onBlur={addEmail}
+                    style={{ border: 'none', outline: 'none', background: 'transparent', fontSize: '15px', minWidth: '180px', flex: 1, fontFamily: 'inherit', color: '#18202a' }}
+                  />
+                </div>
+                <p style={{ margin: '5px 0 0', fontSize: '12px', color: '#9ca3af' }}>Press Enter or comma to add each address</p>
               </div>
 
               <div className="field">

@@ -39,9 +39,17 @@ export async function POST(req: Request) {
       );
     }
 
-    // 3. Look up retention period from the selected business (fallback: 30 days)
+    // 3. Look up retention period and email settings
     const admin = getSupabaseAdmin();
     let retentionDays = 30;
+
+    const { data: userSettings } = await admin
+      .from("user_settings")
+      .select("default_retention_days, email_banner_url, email_custom_text")
+      .eq("user_id", user.id)
+      .maybeSingle<{ default_retention_days: number; email_banner_url: string | null; email_custom_text: string | null }>();
+
+    if (userSettings?.default_retention_days) retentionDays = userSettings.default_retention_days;
 
     if (businessId) {
       const { data: biz } = await admin
@@ -100,9 +108,11 @@ export async function POST(req: Request) {
           from: "PhotoDrop <noreply@photodropusa.com>",
           to: customerEmail,
           subject: `Your photos from ${eventName} are ready!`,
-          html: `<p>Hi there!</p>
+          html: `${userSettings?.email_banner_url ? `<img src="${userSettings.email_banner_url}" alt="" style="width:100%;max-width:600px;display:block;margin-bottom:16px;border-radius:8px;" />` : ""}
+<p>Hi there!</p>
+${userSettings?.email_custom_text ? `<p>${userSettings.email_custom_text}</p>` : ""}
 <p>Your photos from <strong>${eventName}</strong> have been uploaded and are ready to view.</p>
-<p><a href="${folderLink}" style="display:inline-block;padding:12px 24px;background:#000;color:#fff;text-decoration:none;border-radius:6px;font-weight:bold;">View Your Photos</a></p>
+<p><a href="${folderLink}" style="display:inline-block;padding:12px 24px;background:#3b82f6;color:#fff;text-decoration:none;border-radius:6px;font-weight:bold;">View Your Photos</a></p>
 <p>This link gives you view-only access to your event folder. It will be available until <strong>${new Date(expiresAt).toLocaleDateString("en-US", { dateStyle: "long" })}</strong>.</p>
 <p>— PhotoDrop</p>`,
         }),

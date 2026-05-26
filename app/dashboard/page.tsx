@@ -85,6 +85,9 @@ export default function Dashboard() {
         </Link>
         <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
           {email && <span style={{ fontSize: '14px', color: '#64748b' }}>{email}</span>}
+          <Link href="/settings" style={{ fontSize: '14px', fontWeight: 600, color: '#64748b', textDecoration: 'none' }}>
+            Settings
+          </Link>
           <button
             onClick={handleSignOut}
             style={{

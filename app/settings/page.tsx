@@ -104,6 +104,8 @@ export default function SettingsPage() {
         router.push('/login');
         return;
       }
+      const { data: license } = await supabase.from('user_licenses').select('user_id').eq('user_id', user.id).maybeSingle();
+      if (!license) { router.push('/activate'); return; }
       setUserId(user.id);
       setUserEmail(user.email ?? '');
       setNewEmail(user.email ?? '');

@@ -33,6 +33,8 @@ export default function UploadPage() {
         router.push('/login');
         return;
       }
+      const { data: license } = await supabase.from('user_licenses').select('user_id').eq('user_id', session.user.id).maybeSingle();
+      if (!license) { router.push('/activate'); return; }
       setToken(session.access_token);
 
       const { data } = await supabase

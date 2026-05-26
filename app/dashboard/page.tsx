@@ -137,12 +137,15 @@ export default function Dashboard() {
       setUserEmail(user.email ?? '');
       setNewEmail(user.email ?? '');
 
-      const [filesRes, settingsRes, bizRes, tokenRes] = await Promise.all([
+      const [filesRes, settingsRes, bizRes, tokenRes, licenseRes] = await Promise.all([
         supabase.from('uploaded_files').select('id,drive_folder_path,customer_email,uploaded_at,expires_at').eq('user_id', user.id).is('deleted_at', null).order('uploaded_at', { ascending: false }),
         supabase.from('user_settings').select('*').eq('user_id', user.id).maybeSingle(),
         supabase.from('businesses').select('id,name,retention_days').eq('owner_id', user.id),
         supabase.from('google_tokens').select('user_id').eq('user_id', user.id).maybeSingle(),
+        supabase.from('user_licenses').select('user_id').eq('user_id', user.id).maybeSingle(),
       ]);
+
+      if (!licenseRes.data) { router.push('/activate'); return; }
 
       setFiles((filesRes.data as FileRow[]) ?? []);
       setDriveConnected(!!tokenRes.data);

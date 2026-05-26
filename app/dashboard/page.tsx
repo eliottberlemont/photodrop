@@ -24,6 +24,7 @@ interface Business {
 interface UserSettings {
   email_banner_url: string | null;
   email_custom_text: string | null;
+  email_subject: string | null;
   default_retention_days: number;
 }
 
@@ -100,13 +101,14 @@ export default function Dashboard() {
   const [driveConnected, setDriveConnected] = useState<boolean | null>(null);
   const [files, setFiles] = useState<FileRow[]>([]);
   const [businesses, setBusinesses] = useState<Business[]>([]);
-  const [settings, setSettings] = useState<UserSettings>({ email_banner_url: null, email_custom_text: null, default_retention_days: 30 });
+  const [settings, setSettings] = useState<UserSettings>({ email_banner_url: null, email_custom_text: null, email_subject: null, default_retention_days: 30 });
   const [loading, setLoading] = useState(true);
 
   // Messages tab state
   const [bannerUrl, setBannerUrl] = useState('');
   const [bannerUploading, setBannerUploading] = useState(false);
   const [customText, setCustomText] = useState('');
+  const [emailSubject, setEmailSubject] = useState('');
   const [msgSaveMsg, setMsgSaveMsg] = useState('');
   const [msgSaving, setMsgSaving] = useState(false);
   const bannerInputRef = useRef<HTMLInputElement>(null);
@@ -155,6 +157,7 @@ export default function Dashboard() {
         setSettings(settingsRes.data as UserSettings);
         setBannerUrl(settingsRes.data.email_banner_url ?? '');
         setCustomText(settingsRes.data.email_custom_text ?? '');
+        setEmailSubject(settingsRes.data.email_subject ?? '');
         setDefaultRetention(settingsRes.data.default_retention_days ?? 30);
       }
 
@@ -195,7 +198,7 @@ export default function Dashboard() {
     if (upErr) { setMsgSaveMsg(`Error: ${upErr.message}`); setBannerUploading(false); return; }
     const { data: { publicUrl } } = supabase.storage.from('banners').getPublicUrl(path);
     setBannerUrl(publicUrl);
-    const { error: dbErr } = await supabase.from('user_settings').upsert({ user_id: userId, email_banner_url: publicUrl, email_custom_text: customText || null, updated_at: new Date().toISOString() });
+    const { error: dbErr } = await supabase.from('user_settings').upsert({ user_id: userId, email_banner_url: publicUrl, email_custom_text: customText || null, email_subject: emailSubject || null, updated_at: new Date().toISOString() });
     setBannerUploading(false);
     setMsgSaveMsg(dbErr ? `Error saving: ${dbErr.message}` : 'Banner saved.');
   };
@@ -203,14 +206,14 @@ export default function Dashboard() {
   const removeBanner = async () => {
     if (!userId) return;
     setBannerUrl('');
-    await getSupabase().from('user_settings').upsert({ user_id: userId, email_banner_url: null, email_custom_text: customText || null, updated_at: new Date().toISOString() });
+    await getSupabase().from('user_settings').upsert({ user_id: userId, email_banner_url: null, email_custom_text: customText || null, email_subject: emailSubject || null, updated_at: new Date().toISOString() });
     setMsgSaveMsg('Banner removed.');
   };
 
   const saveMessages = async () => {
     if (!userId) return;
     setMsgSaving(true); setMsgSaveMsg('');
-    const { error } = await getSupabase().from('user_settings').upsert({ user_id: userId, email_banner_url: bannerUrl || null, email_custom_text: customText || null, updated_at: new Date().toISOString() });
+    const { error } = await getSupabase().from('user_settings').upsert({ user_id: userId, email_banner_url: bannerUrl || null, email_custom_text: customText || null, email_subject: emailSubject || null, updated_at: new Date().toISOString() });
     setMsgSaving(false);
     setMsgSaveMsg(error ? `Error: ${error.message}` : 'Saved.');
   };
@@ -413,6 +416,17 @@ export default function Dashboard() {
                       )}
                     </div>
                     <div>
+                      <label style={fieldLabel}>Email subject</label>
+                      <input
+                        style={fieldInput}
+                        type="text"
+                        placeholder={`e.g. Your photos from the wedding are ready!`}
+                        value={emailSubject}
+                        onChange={e => setEmailSubject(e.target.value)}
+                      />
+                      <p style={{ margin: '5px 0 0', fontSize: '12px', color: '#94a3b8' }}>Leave blank to use the default subject.</p>
+                    </div>
+                    <div>
                       <label style={fieldLabel}>Custom message</label>
                       <textarea
                         style={{ ...fieldInput, minHeight: '100px', resize: 'vertical' as const, lineHeight: 1.6 }}
@@ -420,6 +434,7 @@ export default function Dashboard() {
                         value={customText}
                         onChange={e => setCustomText(e.target.value)}
                       />
+                      <p style={{ margin: '5px 0 0', fontSize: '12px', color: '#94a3b8' }}>Leave blank to send no message body text.</p>
                     </div>
                     <button onClick={saveMessages} disabled={msgSaving} style={primaryBtn(msgSaving)}>Save message</button>
                   </div>

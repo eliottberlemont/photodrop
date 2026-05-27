@@ -1,139 +1,107 @@
 'use client';
 
 import { useState } from 'react';
-import { useRouter } from 'next/navigation';
-import { getSupabase } from '@/lib/supabase';
 import Link from 'next/link';
 
-const bg: React.CSSProperties = {
-  minHeight: '100vh',
-  background: 'linear-gradient(135deg, #dbeafe 0%, #eff6ff 40%, #e0f2fe 100%)',
-  display: 'flex',
-  flexDirection: 'column',
-  alignItems: 'center',
-  justifyContent: 'center',
-  fontFamily: "'Helvetica Neue', Arial, sans-serif",
-  padding: '24px',
-};
-
-const card: React.CSSProperties = {
-  background: 'white',
-  borderRadius: '24px',
-  padding: '40px',
-  width: '100%',
-  maxWidth: '420px',
-  boxShadow: '0 20px 60px rgba(59,130,246,0.12)',
-};
-
-const label: React.CSSProperties = {
-  display: 'block',
-  fontSize: '12px',
-  fontWeight: 700,
-  textTransform: 'uppercase' as const,
-  letterSpacing: '0.06em',
-  color: '#64748b',
-  marginBottom: '6px',
-};
-
-const input: React.CSSProperties = {
-  width: '100%',
-  padding: '12px 14px',
-  borderRadius: '10px',
-  border: '1.5px solid #e2e8f0',
-  fontSize: '15px',
-  fontFamily: 'inherit',
-  color: '#0f172a',
-  background: '#f8fafc',
-  outline: 'none',
-  boxSizing: 'border-box' as const,
-};
+const font = "'Helvetica Neue', Arial, sans-serif";
 
 export default function SignupPage() {
-  const router = useRouter();
   const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [error, setError] = useState('');
-  const [loading, setLoading] = useState(false);
+  const [status, setStatus] = useState<'idle' | 'loading' | 'done' | 'error'>('idle');
 
-  const handleSignup = async () => {
-    setError('');
-    if (!email || !password) {
-      setError('Please fill in all fields.');
-      return;
-    }
-    setLoading(true);
-    const { error } = await getSupabase().auth.signUp({ email, password });
-    setLoading(false);
-    if (error) {
-      setError(error.message);
-    } else {
-      router.push('/dashboard');
-    }
+  const handleJoin = async () => {
+    if (!email.includes('@')) return;
+    setStatus('loading');
+    const res = await fetch('/api/waitlist', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email }),
+    });
+    setStatus(res.ok ? 'done' : 'error');
   };
 
   return (
-    <div style={bg}>
+    <div style={{
+      minHeight: '100vh',
+      background: 'linear-gradient(135deg, #dbeafe 0%, #eff6ff 40%, #e0f2fe 100%)',
+      display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
+      fontFamily: font, padding: '24px',
+    }}>
       <Link href="/" style={{ fontSize: '28px', fontWeight: 200, letterSpacing: '-0.03em', color: '#0f172a', textDecoration: 'none', marginBottom: '32px' }}>
         PhotoDrop
       </Link>
 
-      <div style={card}>
-        <h1 style={{ margin: '0 0 28px', fontSize: '26px', fontWeight: 600, color: '#0f172a' }}>Create account</h1>
-
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '18px' }}>
-          <div>
-            <label style={label}>Email</label>
-            <input
-              style={input}
-              type="email"
-              placeholder="you@example.com"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-            />
+      <div style={{
+        background: 'white', borderRadius: '24px', padding: '40px',
+        width: '100%', maxWidth: '440px',
+        boxShadow: '0 20px 60px rgba(59,130,246,0.12)',
+      }}>
+        {status === 'done' ? (
+          <div style={{ textAlign: 'center' }}>
+            <div style={{ fontSize: '48px', marginBottom: '16px' }}>🎉</div>
+            <h1 style={{ margin: '0 0 12px', fontSize: '24px', fontWeight: 600, color: '#0f172a' }}>You're on the list!</h1>
+            <p style={{ margin: '0 0 24px', fontSize: '15px', color: '#64748b', lineHeight: 1.6 }}>
+              We'll reach out when we're ready to bring you on board.
+            </p>
+            <Link href="/" style={{ fontSize: '14px', color: '#3b82f6', fontWeight: 600, textDecoration: 'none' }}>
+              ← Back to home
+            </Link>
           </div>
+        ) : (
+          <>
+            <div style={{ display: 'inline-block', marginBottom: '20px', fontSize: '12px', fontWeight: 700, letterSpacing: '0.12em', textTransform: 'uppercase' as const, color: '#3b82f6', background: '#eff6ff', border: '1px solid #bfdbfe', padding: '4px 12px', borderRadius: '999px' }}>
+              Early access
+            </div>
 
-          <div>
-            <label style={label}>Password</label>
-            <input
-              style={input}
-              type="password"
-              placeholder="Create a password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              onKeyDown={(e) => e.key === 'Enter' && handleSignup()}
-            />
-          </div>
+            <h1 style={{ margin: '0 0 12px', fontSize: '26px', fontWeight: 600, color: '#0f172a' }}>
+              Request access
+            </h1>
+            <p style={{ margin: '0 0 28px', fontSize: '15px', color: '#64748b', lineHeight: 1.6 }}>
+              PhotoDrop is currently invite-only. Join the waitlist and we'll be in touch when we're ready to bring you on.
+            </p>
 
-          {error && (
-            <p style={{ margin: 0, fontSize: '14px', color: '#ef4444' }}>{error}</p>
-          )}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+              <input
+                type="email"
+                placeholder="your@email.com"
+                value={email}
+                onChange={e => setEmail(e.target.value)}
+                onKeyDown={e => e.key === 'Enter' && handleJoin()}
+                style={{
+                  width: '100%', padding: '13px 16px', borderRadius: '10px',
+                  border: '1.5px solid #e2e8f0', fontSize: '15px', fontFamily: font,
+                  color: '#0f172a', background: '#f8fafc', outline: 'none',
+                  boxSizing: 'border-box' as const,
+                }}
+              />
 
-          <button
-            onClick={handleSignup}
-            disabled={loading}
-            style={{
-              marginTop: '4px',
-              padding: '14px',
-              borderRadius: '999px',
-              border: 'none',
-              background: loading ? '#93c5fd' : '#3b82f6',
-              color: 'white',
-              fontWeight: 700,
-              fontSize: '16px',
-              cursor: loading ? 'not-allowed' : 'pointer',
-              boxShadow: '0 8px 24px rgba(59,130,246,0.3)',
-            }}
-          >
-            {loading ? 'Creating account…' : 'Sign Up'}
-          </button>
-        </div>
+              {status === 'error' && (
+                <p style={{ margin: 0, fontSize: '14px', color: '#ef4444' }}>Something went wrong — please try again.</p>
+              )}
 
-        <p style={{ margin: '20px 0 0', fontSize: '14px', color: '#64748b', textAlign: 'center' }}>
-          Already have an account?{' '}
-          <Link href="/login" style={{ color: '#3b82f6', fontWeight: 700, textDecoration: 'none' }}>
-            Log in
-          </Link>
-        </p>
+              <button
+                onClick={handleJoin}
+                disabled={status === 'loading' || !email.includes('@')}
+                style={{
+                  padding: '14px', borderRadius: '999px', border: 'none',
+                  background: status === 'loading' || !email.includes('@') ? '#93c5fd' : '#3b82f6',
+                  color: 'white', fontWeight: 700, fontSize: '16px',
+                  cursor: status === 'loading' || !email.includes('@') ? 'not-allowed' : 'pointer',
+                  boxShadow: '0 8px 24px rgba(59,130,246,0.3)',
+                }}
+              >
+                {status === 'loading' ? 'Joining…' : 'Join waitlist'}
+              </button>
+            </div>
+
+            <p style={{ margin: '24px 0 0', fontSize: '13px', color: '#94a3b8', textAlign: 'center' }}>
+              Already have an account?{' '}
+              <Link href="/login" style={{ color: '#3b82f6', fontWeight: 600, textDecoration: 'none' }}>Log in</Link>
+              {' · '}
+              <Link href="/signup/account" style={{ color: '#94a3b8', textDecoration: 'none' }}>Have an invitation?</Link>
+            </p>
+          </>
+        )}
       </div>
     </div>
   );

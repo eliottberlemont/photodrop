@@ -84,6 +84,9 @@ export default function LandingPage() {
       }}>
         <span style={{ fontSize: '22px', fontWeight: 200, letterSpacing: '-0.03em' }}>PhotoDrop</span>
         <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
+          <Link href="/pricing" style={{ fontSize: '14px', fontWeight: 600, color: '#64748b', textDecoration: 'none', padding: '8px 16px' }}>
+            Pricing
+          </Link>
           <Link href="/login" style={{ fontSize: '14px', fontWeight: 600, color: '#64748b', textDecoration: 'none', padding: '8px 16px' }}>
             Log in
           </Link>

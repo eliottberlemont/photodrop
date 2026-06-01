@@ -347,7 +347,7 @@ export default function Dashboard() {
           <div style={{ background: 'white', borderRadius: '20px', padding: '32px', maxWidth: '420px', width: '100%', border: '1px solid #e8e8e8' }}>
             <h2 style={{ margin: '0 0 10px', fontSize: '20px', fontWeight: 700, color: '#0f172a' }}>Delete album?</h2>
             <p style={{ margin: '0 0 24px', fontSize: '15px', color: '#64748b', lineHeight: 1.6 }}>
-              <strong style={{ color: '#0f172a' }}>{deleteConfirm.name}</strong> will be removed from your history. This does not delete the files from Google Drive.
+              <strong style={{ color: '#0f172a' }}>{deleteConfirm.name}</strong> and all its photos will be permanently deleted from Google Drive and removed from your history.
             </p>
             <div style={{ display: 'flex', gap: '10px', justifyContent: 'flex-end' }}>
               <button

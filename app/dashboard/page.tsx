@@ -83,6 +83,7 @@ interface AlbumData {
   customers: Set<string>;
   folder_link: string | null;
   expires_at: string;
+  drive_folder_path: string;
 }
 
 function buildHistory(files: FileRow[]) {
@@ -92,7 +93,7 @@ function buildHistory(files: FileRow[]) {
     const name = f.drive_folder_path.split('/').pop() ?? f.drive_folder_path;
     if (!byDate.has(date)) byDate.set(date, new Map());
     const day = byDate.get(date)!;
-    if (!day.has(name)) day.set(name, { photos: 0, customers: new Set(), folder_link: f.folder_link, expires_at: f.expires_at });
+    if (!day.has(name)) day.set(name, { photos: 0, customers: new Set(), folder_link: f.folder_link, expires_at: f.expires_at, drive_folder_path: f.drive_folder_path });
     const album = day.get(name)!;
     album.photos += 1;
     album.customers.add(f.customer_email);
@@ -135,6 +136,10 @@ export default function Dashboard() {
   const [resendKey, setResendKey] = useState<string | null>(null);
   const [resendEmail, setResendEmail] = useState('');
   const [resendStatus, setResendStatus] = useState<'idle' | 'loading' | 'sent' | 'error'>('idle');
+
+  // Delete confirmation state
+  const [deleteConfirm, setDeleteConfirm] = useState<{ name: string; folderPath: string } | null>(null);
+  const [deleteLoading, setDeleteLoading] = useState(false);
 
   useEffect(() => {
     async function init() {
@@ -196,6 +201,21 @@ export default function Dashboard() {
     sessionStorage.removeItem('pd_active');
     await getSupabase().auth.signOut();
     router.push('/');
+  };
+
+  const handleDeleteAlbum = async () => {
+    if (!deleteConfirm || !userId) return;
+    setDeleteLoading(true);
+    const { error } = await getSupabase()
+      .from('uploaded_files')
+      .update({ deleted_at: new Date().toISOString() })
+      .eq('user_id', userId)
+      .eq('drive_folder_path', deleteConfirm.folderPath);
+    setDeleteLoading(false);
+    if (!error) {
+      setFiles(prev => prev.filter(f => f.drive_folder_path !== deleteConfirm.folderPath));
+      setDeleteConfirm(null);
+    }
   };
 
   const handleResend = async (folderLink: string, eventName: string, expiresAt: string) => {
@@ -320,6 +340,34 @@ export default function Dashboard() {
         ))}
       </div>
 
+      {/* ── Delete confirmation modal ── */}
+      {deleteConfirm && (
+        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.4)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 100, padding: '24px' }}>
+          <div style={{ background: 'white', borderRadius: '20px', padding: '32px', maxWidth: '420px', width: '100%', border: '1px solid #e8e8e8' }}>
+            <h2 style={{ margin: '0 0 10px', fontSize: '20px', fontWeight: 700, color: '#0f172a' }}>Delete album?</h2>
+            <p style={{ margin: '0 0 24px', fontSize: '15px', color: '#64748b', lineHeight: 1.6 }}>
+              <strong style={{ color: '#0f172a' }}>{deleteConfirm.name}</strong> will be removed from your history. This does not delete the files from Google Drive.
+            </p>
+            <div style={{ display: 'flex', gap: '10px', justifyContent: 'flex-end' }}>
+              <button
+                onClick={() => setDeleteConfirm(null)}
+                disabled={deleteLoading}
+                style={{ padding: '10px 20px', borderRadius: '8px', border: '1.5px solid #e2e8f0', background: 'white', fontSize: '14px', fontWeight: 600, color: '#64748b', cursor: 'pointer' }}
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleDeleteAlbum}
+                disabled={deleteLoading}
+                style={{ padding: '10px 20px', borderRadius: '8px', border: 'none', background: deleteLoading ? '#94a3b8' : '#ef4444', color: 'white', fontSize: '14px', fontWeight: 600, cursor: deleteLoading ? 'not-allowed' : 'pointer' }}
+              >
+                {deleteLoading ? 'Deleting…' : 'Delete'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       <main style={{ maxWidth: '760px', margin: '0 auto', padding: '40px 24px' }}>
         {loading ? (
           <p style={{ color: '#94a3b8' }}>Loading…</p>
@@ -409,6 +457,12 @@ export default function Dashboard() {
                                       {isOpen ? 'Cancel' : 'Resend'}
                                     </button>
                                   )}
+                                  <button
+                                    onClick={() => setDeleteConfirm({ name: name.replace(/-/g, ' '), folderPath: data.drive_folder_path })}
+                                    style={{ padding: '5px 14px', borderRadius: '8px', border: '1.5px solid #fecaca', background: 'white', fontSize: '12px', fontWeight: 600, color: '#ef4444', cursor: 'pointer' }}
+                                  >
+                                    Delete
+                                  </button>
                                 </div>
                               </div>
                               {isOpen && (

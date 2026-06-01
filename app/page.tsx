@@ -1,60 +1,42 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 
 const font = "'Helvetica Neue', Arial, sans-serif";
 
-const steps = [
-  {
-    num: '01',
-    title: 'Upload on-site',
-    body: 'Right after the activity, open PhotoDrop on any device, select the photos and enter your customers\' emails.',
-  },
-  {
-    num: '02',
-    title: 'Automatic delivery',
-    body: 'PhotoDrop emails each customer a branded link to their photos — before they even leave the dock.',
-  },
-  {
-    num: '03',
-    title: 'Customers relive the moment',
-    body: 'Customers view and share their photos on any device. No app download, no account needed.',
-  },
-];
+function useFadeIn() {
+  const ref = useRef<HTMLDivElement>(null);
+  const [visible, setVisible] = useState(false);
 
-const features = [
-  {
-    icon: '📱',
-    title: 'Works from any device',
-    body: 'Upload from your phone, tablet, or laptop — no desktop app required.',
-  },
-  {
-    icon: '✉️',
-    title: 'Branded emails',
-    body: 'Add your logo and a custom message so every delivery feels like it came from you.',
-  },
-  {
-    icon: '📁',
-    title: 'Organised storage',
-    body: 'Photos are automatically sorted in Google Drive by date and event name.',
-  },
-  {
-    icon: '👥',
-    title: 'Multi-customer uploads',
-    body: 'One upload, multiple recipients. Perfect for group activities.',
-  },
-  {
-    icon: '⏱️',
-    title: 'Retention control',
-    body: 'Set how long photos stay available — per business or per upload.',
-  },
-  {
-    icon: '📊',
-    title: 'History dashboard',
-    body: 'See every past upload, album, and customer in one place.',
-  },
-];
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    const observer = new IntersectionObserver(
+      ([entry]) => { if (entry.isIntersecting) { setVisible(true); observer.disconnect(); } },
+      { threshold: 0.12 }
+    );
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, []);
+
+  return { ref, visible };
+}
+
+function Section({ children, style }: { children: React.ReactNode; style?: React.CSSProperties }) {
+  const { ref, visible } = useFadeIn();
+  return (
+    <div ref={ref} style={{
+      border: `1.5px solid ${visible ? '#0f172a' : 'transparent'}`,
+      borderRadius: '20px',
+      padding: 'clamp(32px, 5vw, 56px)',
+      transition: 'border-color 0.55s cubic-bezier(0.16, 1, 0.3, 1)',
+      ...style,
+    }}>
+      {children}
+    </div>
+  );
+}
 
 export default function LandingPage() {
   const [email, setEmail] = useState('');
@@ -74,195 +56,185 @@ export default function LandingPage() {
   return (
     <div style={{ fontFamily: font, color: '#0f172a', background: '#fff' }}>
 
-      {/* ── Nav ── */}
+      {/* Nav */}
       <nav style={{
         position: 'sticky', top: 0, zIndex: 50,
         display: 'flex', justifyContent: 'space-between', alignItems: 'center',
-        padding: '0 32px', height: '64px',
-        background: 'rgba(255,255,255,0.85)', backdropFilter: 'blur(12px)',
-        borderBottom: '1px solid #f1f5f9',
+        padding: '0 clamp(20px, 4vw, 48px)', height: '60px',
+        background: 'rgba(255,255,255,0.9)', backdropFilter: 'blur(10px)',
+        borderBottom: '1px solid #e8e8e8',
       }}>
-        <span style={{ fontSize: '22px', fontWeight: 200, letterSpacing: '-0.03em' }}>PhotoDrop</span>
-        <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
-          <Link href="/pricing" style={{ fontSize: '14px', fontWeight: 600, color: '#64748b', textDecoration: 'none', padding: '8px 16px' }}>
+        <span style={{ fontSize: '20px', fontWeight: 300, letterSpacing: '-0.02em' }}>PhotoDrop</span>
+        <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+          <Link href="/pricing" style={{ fontSize: '14px', fontWeight: 500, color: '#64748b', textDecoration: 'none', padding: '8px 14px' }}>
             Pricing
           </Link>
-          <Link href="/login" style={{ fontSize: '14px', fontWeight: 600, color: '#64748b', textDecoration: 'none', padding: '8px 16px' }}>
+          <Link href="/login" style={{ fontSize: '14px', fontWeight: 500, color: '#64748b', textDecoration: 'none', padding: '8px 14px' }}>
             Log in
           </Link>
           <Link href="/signup" style={{
-            fontSize: '14px', fontWeight: 700, color: '#fff', textDecoration: 'none',
-            padding: '9px 20px', borderRadius: '999px', background: '#3b82f6',
-            boxShadow: '0 4px 12px rgba(59,130,246,0.3)',
+            fontSize: '14px', fontWeight: 600, color: '#fff', textDecoration: 'none',
+            padding: '8px 18px', borderRadius: '8px', background: '#0f172a',
           }}>
             Get started
           </Link>
         </div>
       </nav>
 
-      {/* ── Hero ── */}
+      {/* Hero */}
       <section style={{
-        background: 'linear-gradient(160deg, #dbeafe 0%, #eff6ff 50%, #e0f2fe 100%)',
-        padding: 'clamp(80px, 12vw, 140px) 24px clamp(80px, 10vw, 120px)',
-        textAlign: 'center',
+        maxWidth: '860px', margin: '0 auto',
+        padding: 'clamp(80px, 14vw, 160px) clamp(20px, 4vw, 48px) clamp(60px, 10vw, 120px)',
       }}>
-        <p style={{
-          display: 'inline-block', marginBottom: '24px',
-          fontSize: '12px', fontWeight: 700, letterSpacing: '0.14em', textTransform: 'uppercase',
-          color: '#3b82f6', background: '#eff6ff', border: '1px solid #bfdbfe',
-          padding: '5px 14px', borderRadius: '999px',
-        }}>
-          Built for parasailing, whale watching &amp; more
-        </p>
-
         <h1 style={{
-          fontSize: 'clamp(40px, 7vw, 80px)', fontWeight: 200, letterSpacing: '-0.04em',
-          lineHeight: 1.05, margin: '0 auto 24px', maxWidth: '800px',
+          fontSize: 'clamp(44px, 8vw, 96px)', fontWeight: 300, letterSpacing: '-0.04em',
+          lineHeight: 1.02, margin: '0 0 32px', color: '#0f172a',
         }}>
-          Deliver photos to your customers —&nbsp;automatically.
+          Take the photo.<br />Your customer gets it.<br />
+          <span style={{ color: '#94a3b8' }}>That's the whole thing.</span>
         </h1>
-
         <p style={{
-          fontSize: 'clamp(16px, 2vw, 20px)', color: '#475569', lineHeight: 1.7,
-          maxWidth: '540px', margin: '0 auto 48px',
+          fontSize: 'clamp(16px, 2vw, 19px)', color: '#475569', lineHeight: 1.75,
+          maxWidth: '520px', margin: '0 0 48px',
         }}>
-          Upload from the boat or beach. Your customers get a branded email with their photos before they even get home.
+          Upload photos from any device, add a customer's email, and PhotoDrop sends them a link. No app required on their end. No manual file sharing. It just works.
         </p>
-
-        <div style={{ display: 'flex', gap: '16px', justifyContent: 'center', flexWrap: 'wrap' }}>
+        <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
           <Link href="/signup" style={{
-            padding: '15px 40px', borderRadius: '999px', background: '#3b82f6', color: '#fff',
-            fontWeight: 700, fontSize: '16px', textDecoration: 'none',
-            boxShadow: '0 8px 28px rgba(59,130,246,0.35)',
+            padding: '13px 32px', borderRadius: '8px', background: '#0f172a', color: '#fff',
+            fontWeight: 600, fontSize: '15px', textDecoration: 'none',
           }}>
-            Get started free
+            Request access
           </Link>
           <Link href="/login" style={{
-            padding: '15px 40px', borderRadius: '999px', border: '2px solid #cbd5e1',
-            background: 'transparent', color: '#0f172a', fontWeight: 700, fontSize: '16px', textDecoration: 'none',
+            padding: '13px 32px', borderRadius: '8px', border: '1.5px solid #cbd5e1',
+            background: 'transparent', color: '#0f172a', fontWeight: 600, fontSize: '15px', textDecoration: 'none',
           }}>
             Log in
           </Link>
         </div>
       </section>
 
-      {/* ── How it works ── */}
-      <section style={{ padding: 'clamp(64px, 8vw, 100px) 24px', maxWidth: '960px', margin: '0 auto' }}>
-        <p style={{ textAlign: 'center', fontSize: '12px', fontWeight: 700, letterSpacing: '0.14em', textTransform: 'uppercase', color: '#3b82f6', marginBottom: '12px' }}>
-          How it works
-        </p>
-        <h2 style={{ textAlign: 'center', fontSize: 'clamp(28px, 4vw, 44px)', fontWeight: 200, letterSpacing: '-0.03em', margin: '0 0 56px' }}>
-          Three steps. That's it.
-        </h2>
+      {/* Sections wrapper */}
+      <div style={{
+        maxWidth: '860px', margin: '0 auto',
+        padding: '0 clamp(20px, 4vw, 48px) clamp(80px, 10vw, 120px)',
+        display: 'flex', flexDirection: 'column', gap: '20px',
+      }}>
 
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '32px' }}>
-          {steps.map(s => (
-            <div key={s.num} style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-              <span style={{ fontSize: '13px', fontWeight: 700, color: '#94a3b8', letterSpacing: '0.06em' }}>{s.num}</span>
-              <h3 style={{ margin: 0, fontSize: '20px', fontWeight: 600, color: '#0f172a' }}>{s.title}</h3>
-              <p style={{ margin: 0, fontSize: '15px', color: '#64748b', lineHeight: 1.7 }}>{s.body}</p>
-            </div>
-          ))}
-        </div>
-      </section>
-
-      {/* ── Features ── */}
-      <section style={{ background: '#f8fafc', padding: 'clamp(64px, 8vw, 100px) 24px' }}>
-        <div style={{ maxWidth: '960px', margin: '0 auto' }}>
-          <p style={{ textAlign: 'center', fontSize: '12px', fontWeight: 700, letterSpacing: '0.14em', textTransform: 'uppercase', color: '#3b82f6', marginBottom: '12px' }}>
-            Features
+        {/* How it works */}
+        <Section>
+          <p style={{ margin: '0 0 40px', fontSize: '13px', fontWeight: 600, color: '#94a3b8', letterSpacing: '0.04em' }}>
+            How it works
           </p>
-          <h2 style={{ textAlign: 'center', fontSize: 'clamp(28px, 4vw, 44px)', fontWeight: 200, letterSpacing: '-0.03em', margin: '0 0 56px' }}>
-            Everything you need, nothing you don't.
-          </h2>
-
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: '24px' }}>
-            {features.map(f => (
-              <div key={f.title} style={{
-                background: 'white', borderRadius: '16px', padding: '28px',
-                border: '1px solid #e2e8f0', display: 'flex', flexDirection: 'column', gap: '10px',
-              }}>
-                <span style={{ fontSize: '28px' }}>{f.icon}</span>
-                <h3 style={{ margin: 0, fontSize: '16px', fontWeight: 700, color: '#0f172a' }}>{f.title}</h3>
-                <p style={{ margin: 0, fontSize: '14px', color: '#64748b', lineHeight: 1.65 }}>{f.body}</p>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '40px' }}>
+            {[
+              { n: '01', title: 'Upload', body: 'Open PhotoDrop, pick the photos, type in the customer\'s email. Takes about thirty seconds.' },
+              { n: '02', title: 'Deliver', body: 'We email your customer a link to their album. Your logo, your message, your brand.' },
+              { n: '03', title: 'Done', body: 'They open the link, view their photos, share them. No account needed on their side.' },
+            ].map(s => (
+              <div key={s.n}>
+                <span style={{ fontSize: '12px', fontWeight: 700, color: '#cbd5e1', display: 'block', marginBottom: '14px' }}>{s.n}</span>
+                <h3 style={{ margin: '0 0 10px', fontSize: '18px', fontWeight: 600 }}>{s.title}</h3>
+                <p style={{ margin: 0, fontSize: '14px', color: '#64748b', lineHeight: 1.7 }}>{s.body}</p>
               </div>
             ))}
           </div>
+        </Section>
 
-          {/* Google Drive disclaimer */}
-          <div style={{
-            marginTop: '40px', padding: '18px 24px', borderRadius: '12px',
-            background: '#fff7ed', border: '1px solid #fed7aa',
-            display: 'flex', gap: '12px', alignItems: 'flex-start',
-          }}>
-            <span style={{ fontSize: '18px', flexShrink: 0 }}>ℹ️</span>
-            <p style={{ margin: 0, fontSize: '13px', color: '#92400e', lineHeight: 1.6 }}>
-              <strong>Google Drive storage is not included.</strong> PhotoDrop stores photos in your connected Google Drive account. A free Google account includes 15 GB of storage — depending on your upload volume, a Google One subscription may be required for additional space.
-            </p>
-          </div>
-        </div>
-      </section>
-
-      {/* ── Waitlist ── */}
-      <section style={{
-        background: 'linear-gradient(135deg, #1e40af 0%, #3b82f6 100%)',
-        padding: 'clamp(64px, 8vw, 100px) 24px',
-        textAlign: 'center',
-      }}>
-        <h2 style={{ fontSize: 'clamp(28px, 4vw, 48px)', fontWeight: 200, letterSpacing: '-0.03em', color: '#fff', margin: '0 0 12px' }}>
-          Pricing coming soon.
-        </h2>
-        <p style={{ fontSize: '17px', color: '#bfdbfe', margin: '0 0 40px', lineHeight: 1.6 }}>
-          Join the waitlist and be the first to know when plans go live.
-        </p>
-
-        {waitlistStatus === 'done' ? (
-          <p style={{ fontSize: '18px', fontWeight: 600, color: '#fff', background: 'rgba(255,255,255,0.15)', display: 'inline-block', padding: '16px 32px', borderRadius: '12px' }}>
-            You're on the list. We'll be in touch!
+        {/* What's included */}
+        <Section>
+          <p style={{ margin: '0 0 32px', fontSize: '13px', fontWeight: 600, color: '#94a3b8', letterSpacing: '0.04em' }}>
+            What's included
           </p>
-        ) : (
-          <div style={{ display: 'flex', gap: '12px', justifyContent: 'center', flexWrap: 'wrap', maxWidth: '480px', margin: '0 auto' }}>
-            <input
-              type="email"
-              placeholder="your@email.com"
-              value={email}
-              onChange={e => setEmail(e.target.value)}
-              onKeyDown={e => e.key === 'Enter' && handleWaitlist()}
-              style={{
-                flex: 1, minWidth: '200px', padding: '14px 18px', borderRadius: '999px',
-                border: 'none', fontSize: '15px', fontFamily: font,
-                outline: 'none', color: '#0f172a',
-              }}
-            />
-            <button
-              onClick={handleWaitlist}
-              disabled={waitlistStatus === 'loading'}
-              style={{
-                padding: '14px 28px', borderRadius: '999px', border: 'none',
-                background: waitlistStatus === 'loading' ? '#93c5fd' : '#fff',
-                color: '#1e40af', fontWeight: 700, fontSize: '15px',
-                cursor: waitlistStatus === 'loading' ? 'not-allowed' : 'pointer',
-                whiteSpace: 'nowrap' as const,
-              }}
-            >
-              {waitlistStatus === 'loading' ? 'Joining…' : 'Join waitlist'}
-            </button>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '0' }}>
+            {[
+              ['Upload from anywhere', 'Your phone on the water, your laptop at the office. Doesn\'t matter.'],
+              ['One upload, multiple people', 'Add as many email addresses as you need on a single upload.'],
+              ['Your branding on every email', 'Add a banner image and custom message. Customers see your name, not ours.'],
+              ['Photos live in your Google Drive', 'Sorted by date and event automatically. You always own the files.'],
+              ['Set when links expire', 'Choose how long each album stays accessible — a week, a month, up to a year.'],
+              ['Full upload history', 'See every album you\'ve sent, who got it, and when.'],
+            ].map(([title, body], i) => (
+              <div key={title} style={{
+                padding: '24px 0',
+                borderTop: i > 0 ? '1px solid #f1f5f9' : 'none',
+                display: 'grid', gridTemplateColumns: '1fr 1.2fr', gap: '20px', alignItems: 'start',
+              }}>
+                <span style={{ fontSize: '15px', fontWeight: 600, color: '#0f172a' }}>{title}</span>
+                <span style={{ fontSize: '14px', color: '#64748b', lineHeight: 1.65 }}>{body}</span>
+              </div>
+            ))}
           </div>
-        )}
+        </Section>
 
-        {waitlistStatus === 'error' && (
-          <p style={{ marginTop: '12px', fontSize: '14px', color: '#fca5a5' }}>Something went wrong — please try again.</p>
-        )}
-      </section>
+        {/* Google Drive note */}
+        <Section style={{ background: '#fafafa' }}>
+          <p style={{ margin: '0 0 8px', fontSize: '13px', fontWeight: 600, color: '#94a3b8', letterSpacing: '0.04em' }}>
+            Storage
+          </p>
+          <p style={{ margin: 0, fontSize: '15px', color: '#374151', lineHeight: 1.75, maxWidth: '600px' }}>
+            <strong>Google Drive storage is not included.</strong> PhotoDrop connects to your Google account and stores photos there. A standard Google account gives you 15 GB free. Depending on how many photos you take, you may need a Google One plan for more space — that's between you and Google.
+          </p>
+        </Section>
 
-      {/* ── Footer ── */}
-      <footer style={{
-        padding: '32px 24px', textAlign: 'center',
-        borderTop: '1px solid #f1f5f9',
-      }}>
-        <p style={{ margin: 0, fontSize: '13px', color: '#94a3b8' }}>
-          © {new Date().getFullYear()} PhotoDrop. All rights reserved.
-        </p>
+        {/* Waitlist */}
+        <Section>
+          <p style={{ margin: '0 0 8px', fontSize: '13px', fontWeight: 600, color: '#94a3b8', letterSpacing: '0.04em' }}>
+            Pricing
+          </p>
+          <h2 style={{ margin: '0 0 12px', fontSize: 'clamp(24px, 4vw, 36px)', fontWeight: 300, letterSpacing: '-0.03em' }}>
+            Working on it.
+          </h2>
+          <p style={{ margin: '0 0 28px', fontSize: '15px', color: '#64748b', lineHeight: 1.7 }}>
+            Pricing isn't live yet. Leave your email and we'll reach out when it is.
+          </p>
+
+          {waitlistStatus === 'done' ? (
+            <p style={{ fontSize: '15px', fontWeight: 600, color: '#16a34a' }}>Got it — we'll be in touch.</p>
+          ) : (
+            <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap', maxWidth: '460px' }}>
+              <input
+                type="email"
+                placeholder="your@email.com"
+                value={email}
+                onChange={e => setEmail(e.target.value)}
+                onKeyDown={e => e.key === 'Enter' && handleWaitlist()}
+                style={{
+                  flex: 1, minWidth: '180px', padding: '12px 16px', borderRadius: '8px',
+                  border: '1.5px solid #e2e8f0', fontSize: '15px', fontFamily: font,
+                  outline: 'none', color: '#0f172a', background: '#f8fafc',
+                }}
+              />
+              <button
+                onClick={handleWaitlist}
+                disabled={waitlistStatus === 'loading'}
+                style={{
+                  padding: '12px 24px', borderRadius: '8px', border: 'none',
+                  background: waitlistStatus === 'loading' ? '#94a3b8' : '#0f172a',
+                  color: '#fff', fontWeight: 600, fontSize: '14px',
+                  cursor: waitlistStatus === 'loading' ? 'not-allowed' : 'pointer',
+                  whiteSpace: 'nowrap' as const,
+                }}
+              >
+                {waitlistStatus === 'loading' ? 'Joining…' : 'Join waitlist'}
+              </button>
+            </div>
+          )}
+          {waitlistStatus === 'error' && (
+            <p style={{ marginTop: '10px', fontSize: '13px', color: '#ef4444' }}>Something went wrong — try again.</p>
+          )}
+        </Section>
+
+      </div>
+
+      {/* Footer */}
+      <footer style={{ borderTop: '1px solid #f1f5f9', padding: '28px clamp(20px, 4vw, 48px)', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '12px' }}>
+        <span style={{ fontSize: '13px', color: '#94a3b8' }}>© {new Date().getFullYear()} PhotoDrop</span>
+        <div style={{ display: 'flex', gap: '20px' }}>
+          <Link href="/pricing" style={{ fontSize: '13px', color: '#94a3b8', textDecoration: 'none' }}>Pricing</Link>
+          <Link href="/login" style={{ fontSize: '13px', color: '#94a3b8', textDecoration: 'none' }}>Log in</Link>
+        </div>
       </footer>
 
     </div>

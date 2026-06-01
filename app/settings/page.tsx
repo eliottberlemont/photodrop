@@ -99,11 +99,6 @@ export default function SettingsPage() {
       const supabase = getSupabase();
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) { router.push('/login'); return; }
-      if (!localStorage.getItem('pd_remember') && !sessionStorage.getItem('pd_active')) {
-        await supabase.auth.signOut();
-        router.push('/login');
-        return;
-      }
       const { data: license } = await supabase.from('user_licenses').select('user_id').eq('user_id', user.id).maybeSingle();
       if (!license) { router.push('/activate'); return; }
       setUserId(user.id);

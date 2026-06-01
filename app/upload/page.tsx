@@ -28,11 +28,6 @@ export default function UploadPage() {
       const supabase = getSupabase();
       const { data: { session } } = await supabase.auth.getSession();
       if (!session) { router.push('/login'); return; }
-      if (!localStorage.getItem('pd_remember') && !sessionStorage.getItem('pd_active')) {
-        await supabase.auth.signOut();
-        router.push('/login');
-        return;
-      }
       const { data: license } = await supabase.from('user_licenses').select('user_id').eq('user_id', session.user.id).maybeSingle();
       if (!license) { router.push('/activate'); return; }
       setToken(session.access_token);

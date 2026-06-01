@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { getSupabase } from '@/lib/supabase';
 import Link from 'next/link';
@@ -22,9 +22,21 @@ export default function LoginPage() {
   const router = useRouter();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [remember, setRemember] = useState(true);
+  const [remember, setRemember] = useState(false);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    const saved = localStorage.getItem('pd_saved_creds');
+    if (saved) {
+      try {
+        const { email: e, password: p } = JSON.parse(saved);
+        setEmail(e ?? '');
+        setPassword(p ?? '');
+        setRemember(true);
+      } catch {}
+    }
+  }, []);
 
   const handleLogin = async () => {
     setError('');
@@ -35,11 +47,9 @@ export default function LoginPage() {
       setError(error.message);
     } else {
       if (remember) {
-        localStorage.setItem('pd_remember', '1');
-        sessionStorage.removeItem('pd_active');
+        localStorage.setItem('pd_saved_creds', JSON.stringify({ email, password }));
       } else {
-        sessionStorage.setItem('pd_active', '1');
-        localStorage.removeItem('pd_remember');
+        localStorage.removeItem('pd_saved_creds');
       }
       router.push('/dashboard');
     }
@@ -67,7 +77,7 @@ export default function LoginPage() {
 
           <label style={{ display: 'flex', alignItems: 'center', gap: '10px', cursor: 'pointer', userSelect: 'none' as const }}>
             <input type="checkbox" checked={remember} onChange={e => setRemember(e.target.checked)} style={{ width: '15px', height: '15px', accentColor: '#0f172a', cursor: 'pointer' }} />
-            <span style={{ fontSize: '14px', color: '#64748b' }}>Keep me logged in</span>
+            <span style={{ fontSize: '14px', color: '#64748b' }}>Remember my details</span>
           </label>
 
           {error && <p style={{ margin: 0, fontSize: '14px', color: '#ef4444' }}>{error}</p>}

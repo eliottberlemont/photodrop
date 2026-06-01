@@ -204,15 +204,16 @@ export default function Dashboard() {
   };
 
   const handleDeleteAlbum = async () => {
-    if (!deleteConfirm || !userId) return;
+    if (!deleteConfirm) return;
     setDeleteLoading(true);
-    const { error } = await getSupabase()
-      .from('uploaded_files')
-      .update({ deleted_at: new Date().toISOString() })
-      .eq('user_id', userId)
-      .eq('drive_folder_path', deleteConfirm.folderPath);
+    const { data: { session } } = await getSupabase().auth.getSession();
+    const res = await fetch('/api/google/delete-album', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${session?.access_token}` },
+      body: JSON.stringify({ folder_path: deleteConfirm.folderPath }),
+    });
     setDeleteLoading(false);
-    if (!error) {
+    if (res.ok) {
       setFiles(prev => prev.filter(f => f.drive_folder_path !== deleteConfirm.folderPath));
       setDeleteConfirm(null);
     }

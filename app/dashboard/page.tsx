@@ -10,6 +10,7 @@ type Tab = 'overview' | 'history' | 'messages' | 'settings';
 interface FileRow {
   id: string;
   drive_folder_path: string;
+  folder_link: string | null;
   customer_email: string;
   uploaded_at: string;
   expires_at: string;
@@ -77,14 +78,21 @@ function SaveStatus({ msg }: { msg: string }) {
 }
 
 // ── History helpers ──────────────────────────────────────
+interface AlbumData {
+  photos: number;
+  customers: Set<string>;
+  folder_link: string | null;
+  expires_at: string;
+}
+
 function buildHistory(files: FileRow[]) {
-  const byDate = new Map<string, Map<string, { photos: number; customers: Set<string> }>>();
+  const byDate = new Map<string, Map<string, AlbumData>>();
   for (const f of files) {
     const date = f.uploaded_at.slice(0, 10);
     const name = f.drive_folder_path.split('/').pop() ?? f.drive_folder_path;
     if (!byDate.has(date)) byDate.set(date, new Map());
     const day = byDate.get(date)!;
-    if (!day.has(name)) day.set(name, { photos: 0, customers: new Set() });
+    if (!day.has(name)) day.set(name, { photos: 0, customers: new Set(), folder_link: f.folder_link, expires_at: f.expires_at });
     const album = day.get(name)!;
     album.photos += 1;
     album.customers.add(f.customer_email);
@@ -101,7 +109,7 @@ export default function Dashboard() {
   const [driveConnected, setDriveConnected] = useState<boolean | null>(null);
   const [files, setFiles] = useState<FileRow[]>([]);
   const [businesses, setBusinesses] = useState<Business[]>([]);
-  const [settings, setSettings] = useState<UserSettings>({ email_banner_url: null, email_custom_text: null, email_subject: null, default_retention_days: 30 });
+  const [, setSettings] = useState<UserSettings>({ email_banner_url: null, email_custom_text: null, email_subject: null, default_retention_days: 30 });
   const [loading, setLoading] = useState(true);
 
   // Messages tab state
@@ -123,6 +131,11 @@ export default function Dashboard() {
   const [acctSaving, setAcctSaving] = useState(false);
   const [retSaving, setRetSaving] = useState(false);
 
+  // Resend state
+  const [resendKey, setResendKey] = useState<string | null>(null);
+  const [resendEmail, setResendEmail] = useState('');
+  const [resendStatus, setResendStatus] = useState<'idle' | 'loading' | 'sent' | 'error'>('idle');
+
   useEffect(() => {
     async function init() {
       const supabase = getSupabase();
@@ -138,7 +151,7 @@ export default function Dashboard() {
       setNewEmail(user.email ?? '');
 
       const [filesRes, settingsRes, bizRes, tokenRes, licenseRes] = await Promise.all([
-        supabase.from('uploaded_files').select('id,drive_folder_path,customer_email,uploaded_at,expires_at').eq('user_id', user.id).is('deleted_at', null).order('uploaded_at', { ascending: false }),
+        supabase.from('uploaded_files').select('id,drive_folder_path,folder_link,customer_email,uploaded_at,expires_at').eq('user_id', user.id).is('deleted_at', null).order('uploaded_at', { ascending: false }),
         supabase.from('user_settings').select('*').eq('user_id', user.id).maybeSingle(),
         supabase.from('businesses').select('id,name,retention_days').eq('owner_id', user.id),
         supabase.from('google_tokens').select('user_id').eq('user_id', user.id).maybeSingle(),
@@ -188,6 +201,19 @@ export default function Dashboard() {
     sessionStorage.removeItem('pd_active');
     await getSupabase().auth.signOut();
     router.push('/');
+  };
+
+  const handleResend = async (folderLink: string, eventName: string, expiresAt: string) => {
+    const emails = resendEmail.split(',').map(e => e.trim()).filter(Boolean);
+    if (!emails.length || !folderLink) return;
+    setResendStatus('loading');
+    const { data: { session } } = await getSupabase().auth.getSession();
+    const res = await fetch('/api/resend-album', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${session?.access_token}` },
+      body: JSON.stringify({ folder_link: folderLink, event_name: eventName, customer_emails: emails, expires_at: expiresAt }),
+    });
+    setResendStatus(res.ok ? 'sent' : 'error');
   };
 
   const handleBannerUpload = async (file: File) => {
@@ -370,15 +396,55 @@ export default function Dashboard() {
                         {new Date(date + 'T12:00:00').toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' })}
                       </p>
                       <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                        {[...albums.entries()].map(([name, data]) => (
-                          <div key={name} style={{ ...card, padding: '16px 20px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                            <div style={{ fontWeight: 600, fontSize: '15px', color: '#0f172a' }}>{name.replace(/-/g, ' ')}</div>
-                            <div style={{ display: 'flex', gap: '16px' }}>
-                              <span style={{ fontSize: '13px', color: '#64748b' }}>{data.photos} photo{data.photos !== 1 ? 's' : ''}</span>
-                              <span style={{ fontSize: '13px', color: '#64748b' }}>{data.customers.size} customer{data.customers.size !== 1 ? 's' : ''}</span>
+                        {[...albums.entries()].map(([name, data]) => {
+                          const key = `${date}-${name}`;
+                          const isOpen = resendKey === key;
+                          return (
+                            <div key={name} style={{ ...card, padding: '16px 20px' }}>
+                              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                <div style={{ fontWeight: 600, fontSize: '15px', color: '#0f172a' }}>{name.replace(/-/g, ' ')}</div>
+                                <div style={{ display: 'flex', gap: '16px', alignItems: 'center' }}>
+                                  <span style={{ fontSize: '13px', color: '#64748b' }}>{data.photos} photo{data.photos !== 1 ? 's' : ''}</span>
+                                  <span style={{ fontSize: '13px', color: '#64748b' }}>{data.customers.size} customer{data.customers.size !== 1 ? 's' : ''}</span>
+                                  {data.folder_link && (
+                                    <button
+                                      onClick={() => { setResendKey(isOpen ? null : key); setResendEmail(''); setResendStatus('idle'); }}
+                                      style={{ padding: '5px 14px', borderRadius: '999px', border: '1.5px solid #e2e8f0', background: 'white', fontSize: '12px', fontWeight: 600, color: '#64748b', cursor: 'pointer' }}
+                                    >
+                                      {isOpen ? 'Cancel' : 'Resend'}
+                                    </button>
+                                  )}
+                                </div>
+                              </div>
+                              {isOpen && (
+                                <div style={{ marginTop: '14px', paddingTop: '14px', borderTop: '1px solid #f1f5f9' }}>
+                                  <p style={{ margin: '0 0 8px', fontSize: '12px', fontWeight: 700, color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.06em' }}>
+                                    Send album link to
+                                  </p>
+                                  <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' as const }}>
+                                    <input
+                                      type="text"
+                                      placeholder="email@example.com, another@example.com"
+                                      value={resendEmail}
+                                      onChange={e => { setResendEmail(e.target.value); setResendStatus('idle'); }}
+                                      onKeyDown={e => e.key === 'Enter' && handleResend(data.folder_link!, name, data.expires_at)}
+                                      style={{ ...fieldInput, flex: 1, minWidth: '220px', marginTop: 0 }}
+                                    />
+                                    <button
+                                      onClick={() => handleResend(data.folder_link!, name, data.expires_at)}
+                                      disabled={resendStatus === 'loading' || !resendEmail.trim()}
+                                      style={{ padding: '10px 20px', borderRadius: '999px', border: 'none', background: resendStatus === 'loading' ? '#93c5fd' : '#3b82f6', color: 'white', fontWeight: 700, fontSize: '13px', cursor: resendStatus === 'loading' ? 'not-allowed' : 'pointer', whiteSpace: 'nowrap' as const }}
+                                    >
+                                      {resendStatus === 'loading' ? 'Sending…' : 'Send'}
+                                    </button>
+                                  </div>
+                                  {resendStatus === 'sent' && <p style={{ margin: '8px 0 0', fontSize: '13px', color: '#16a34a' }}>Email sent!</p>}
+                                  {resendStatus === 'error' && <p style={{ margin: '8px 0 0', fontSize: '13px', color: '#ef4444' }}>Failed to send — please try again.</p>}
+                                </div>
+                              )}
                             </div>
-                          </div>
-                        ))}
+                          );
+                        })}
                       </div>
                     </div>
                   ))

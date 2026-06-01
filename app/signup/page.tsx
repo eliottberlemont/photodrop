@@ -23,7 +23,7 @@ export default function SignupPage() {
   return (
     <div style={{
       minHeight: '100vh',
-      background: 'linear-gradient(135deg, #dbeafe 0%, #eff6ff 40%, #e0f2fe 100%)',
+      background: '#f8fafc',
       display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
       fontFamily: font, padding: '24px',
     }}>
@@ -34,7 +34,7 @@ export default function SignupPage() {
       <div style={{
         background: 'white', borderRadius: '24px', padding: '40px',
         width: '100%', maxWidth: '440px',
-        boxShadow: '0 20px 60px rgba(59,130,246,0.12)',
+        border: '1px solid #e8e8e8',
       }}>
         {status === 'done' ? (
           <div style={{ textAlign: 'center' }}>
@@ -49,7 +49,7 @@ export default function SignupPage() {
           </div>
         ) : (
           <>
-            <div style={{ display: 'inline-block', marginBottom: '20px', fontSize: '12px', fontWeight: 700, letterSpacing: '0.12em', textTransform: 'uppercase' as const, color: '#3b82f6', background: '#eff6ff', border: '1px solid #bfdbfe', padding: '4px 12px', borderRadius: '999px' }}>
+            <div style={{ display: 'inline-block', marginBottom: '20px', fontSize: '11px', fontWeight: 600, letterSpacing: '0.12em', textTransform: 'uppercase' as const, color: '#64748b', background: '#f1f5f9', border: '1px solid #e2e8f0', padding: '4px 12px', borderRadius: '6px' }}>
               Early access
             </div>
 
@@ -83,11 +83,10 @@ export default function SignupPage() {
                 onClick={handleJoin}
                 disabled={status === 'loading' || !email.includes('@')}
                 style={{
-                  padding: '14px', borderRadius: '999px', border: 'none',
-                  background: status === 'loading' || !email.includes('@') ? '#93c5fd' : '#3b82f6',
-                  color: 'white', fontWeight: 700, fontSize: '16px',
+                  padding: '13px', borderRadius: '8px', border: 'none',
+                  background: status === 'loading' || !email.includes('@') ? '#94a3b8' : '#0f172a',
+                  color: 'white', fontWeight: 600, fontSize: '15px',
                   cursor: status === 'loading' || !email.includes('@') ? 'not-allowed' : 'pointer',
-                  boxShadow: '0 8px 24px rgba(59,130,246,0.3)',
                 }}
               >
                 {status === 'loading' ? 'Joining…' : 'Join waitlist'}

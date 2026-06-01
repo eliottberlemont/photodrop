@@ -34,7 +34,7 @@ const card: React.CSSProperties = {
   background: 'white',
   borderRadius: '16px',
   padding: '24px',
-  boxShadow: '0 4px 20px rgba(59,130,246,0.08)',
+  border: '1px solid #e8e8e8',
 };
 
 const fieldLabel: React.CSSProperties = {
@@ -61,12 +61,12 @@ const fieldInput: React.CSSProperties = {
 };
 
 const primaryBtn = (disabled = false): React.CSSProperties => ({
-  padding: '11px 24px',
-  borderRadius: '999px',
+  padding: '10px 22px',
+  borderRadius: '8px',
   border: 'none',
-  background: disabled ? '#93c5fd' : '#3b82f6',
+  background: disabled ? '#94a3b8' : '#0f172a',
   color: 'white',
-  fontWeight: 700,
+  fontWeight: 600,
   fontSize: '14px',
   cursor: disabled ? 'not-allowed' : 'pointer',
   marginTop: '16px',
@@ -290,32 +290,32 @@ export default function Dashboard() {
   ];
 
   return (
-    <div style={{ minHeight: '100vh', background: 'linear-gradient(135deg, #dbeafe 0%, #eff6ff 40%, #e0f2fe 100%)', fontFamily: "'Helvetica Neue', Arial, sans-serif" }}>
+    <div style={{ minHeight: '100vh', background: '#f8fafc', fontFamily: "'Helvetica Neue', Arial, sans-serif" }}>
       {/* Header */}
-      <header style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '16px 32px', background: 'rgba(255,255,255,0.75)', backdropFilter: 'blur(12px)', borderBottom: '1px solid rgba(59,130,246,0.1)', position: 'sticky', top: 0, zIndex: 10 }}>
-        <Link href="/" style={{ fontSize: '22px', fontWeight: 200, letterSpacing: '-0.03em', color: '#0f172a', textDecoration: 'none' }}>PhotoDrop</Link>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
+      <header style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '0 clamp(20px, 4vw, 40px)', height: '60px', background: 'rgba(255,255,255,0.9)', backdropFilter: 'blur(10px)', borderBottom: '1px solid #e8e8e8', position: 'sticky', top: 0, zIndex: 10 }}>
+        <Link href="/" style={{ fontSize: '20px', fontWeight: 300, letterSpacing: '-0.02em', color: '#0f172a', textDecoration: 'none' }}>PhotoDrop</Link>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
           {userEmail && <span style={{ fontSize: '13px', color: '#94a3b8' }}>{userEmail}</span>}
-          <Link href="/upload" style={{ padding: '8px 18px', borderRadius: '999px', background: '#3b82f6', color: 'white', fontWeight: 700, fontSize: '13px', textDecoration: 'none' }}>Upload photos</Link>
-          <button onClick={handleSignOut} style={{ padding: '8px 18px', borderRadius: '999px', border: '1.5px solid #e2e8f0', background: 'white', fontSize: '13px', fontWeight: 600, color: '#64748b', cursor: 'pointer' }}>Sign out</button>
+          <Link href="/upload" style={{ padding: '7px 16px', borderRadius: '8px', background: '#0f172a', color: 'white', fontWeight: 600, fontSize: '13px', textDecoration: 'none' }}>Upload photos</Link>
+          <button onClick={handleSignOut} style={{ padding: '7px 16px', borderRadius: '8px', border: '1.5px solid #e2e8f0', background: 'white', fontSize: '13px', fontWeight: 600, color: '#64748b', cursor: 'pointer' }}>Sign out</button>
         </div>
       </header>
 
       {/* Tab bar */}
-      <div style={{ background: 'rgba(255,255,255,0.6)', borderBottom: '1px solid rgba(59,130,246,0.08)', padding: '0 32px', display: 'flex', gap: '4px' }}>
+      <div style={{ background: 'white', borderBottom: '1px solid #e8e8e8', padding: '0 clamp(20px, 4vw, 40px)', display: 'flex', gap: '4px' }}>
         {TABS.map(t => (
           <button
             key={t.key}
             onClick={() => setTab(t.key)}
             style={{
-              padding: '14px 20px',
+              padding: '14px 18px',
               border: 'none',
               background: 'none',
               cursor: 'pointer',
               fontSize: '14px',
-              fontWeight: tab === t.key ? 700 : 500,
-              color: tab === t.key ? '#3b82f6' : '#64748b',
-              borderBottom: tab === t.key ? '2px solid #3b82f6' : '2px solid transparent',
+              fontWeight: tab === t.key ? 600 : 400,
+              color: tab === t.key ? '#0f172a' : '#64748b',
+              borderBottom: tab === t.key ? '2px solid #0f172a' : '2px solid transparent',
               marginBottom: '-1px',
               fontFamily: 'inherit',
             }}
@@ -353,7 +353,7 @@ export default function Dashboard() {
                 {/* Quick actions */}
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
                   <Link href="/upload" style={{ ...card, display: 'flex', alignItems: 'center', gap: '16px', textDecoration: 'none', color: '#0f172a', cursor: 'pointer' }}>
-                    <div style={{ width: '44px', height: '44px', borderRadius: '12px', background: '#eff6ff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '20px', flexShrink: 0 }}>📷</div>
+                    <div style={{ width: '44px', height: '44px', borderRadius: '12px', background: '#f1f5f9', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '20px', flexShrink: 0 }}>📷</div>
                     <div>
                       <div style={{ fontWeight: 700, fontSize: '15px' }}>Upload photos</div>
                       <div style={{ fontSize: '13px', color: '#64748b', marginTop: '2px' }}>Deliver a new album to customers</div>
@@ -371,7 +371,7 @@ export default function Dashboard() {
                   )}
 
                   {driveConnected === false && (
-                    <button onClick={handleConnect} style={{ ...card, display: 'flex', alignItems: 'center', gap: '16px', width: '100%', textAlign: 'left', border: '1.5px solid #e2e8f0', cursor: 'pointer' }}>
+                    <button onClick={handleConnect} style={{ ...card, display: 'flex', alignItems: 'center', gap: '16px', width: '100%', textAlign: 'left', border: '1px solid #e8e8e8', cursor: 'pointer' }}>
                       <div style={{ width: '44px', height: '44px', borderRadius: '12px', background: '#f0fdf4', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '20px', flexShrink: 0 }}>🔗</div>
                       <div>
                         <div style={{ fontWeight: 700, fontSize: '15px' }}>Connect Google Drive</div>
@@ -409,7 +409,7 @@ export default function Dashboard() {
                                   {data.folder_link && (
                                     <button
                                       onClick={() => { setResendKey(isOpen ? null : key); setResendEmail(''); setResendStatus('idle'); }}
-                                      style={{ padding: '5px 14px', borderRadius: '999px', border: '1.5px solid #e2e8f0', background: 'white', fontSize: '12px', fontWeight: 600, color: '#64748b', cursor: 'pointer' }}
+                                      style={{ padding: '5px 14px', borderRadius: '8px', border: '1.5px solid #e2e8f0', background: 'white', fontSize: '12px', fontWeight: 600, color: '#64748b', cursor: 'pointer' }}
                                     >
                                       {isOpen ? 'Cancel' : 'Resend'}
                                     </button>
@@ -433,7 +433,7 @@ export default function Dashboard() {
                                     <button
                                       onClick={() => handleResend(data.folder_link!, name, data.expires_at)}
                                       disabled={resendStatus === 'loading' || !resendEmail.trim()}
-                                      style={{ padding: '10px 20px', borderRadius: '999px', border: 'none', background: resendStatus === 'loading' ? '#93c5fd' : '#3b82f6', color: 'white', fontWeight: 700, fontSize: '13px', cursor: resendStatus === 'loading' ? 'not-allowed' : 'pointer', whiteSpace: 'nowrap' as const }}
+                                      style={{ padding: '10px 20px', borderRadius: '8px', border: 'none', background: resendStatus === 'loading' ? '#94a3b8' : '#0f172a', color: 'white', fontWeight: 600, fontSize: '13px', cursor: resendStatus === 'loading' ? 'not-allowed' : 'pointer', whiteSpace: 'nowrap' as const }}
                                     >
                                       {resendStatus === 'loading' ? 'Sending…' : 'Send'}
                                     </button>
@@ -467,10 +467,10 @@ export default function Dashboard() {
                         <div>
                           <img src={bannerUrl} alt="Banner" style={{ maxWidth: '100%', maxHeight: '130px', objectFit: 'cover', borderRadius: '10px', display: 'block', marginBottom: '10px' }} />
                           <div style={{ display: 'flex', gap: '8px' }}>
-                            <button type="button" onClick={() => bannerInputRef.current?.click()} disabled={bannerUploading} style={{ padding: '7px 16px', borderRadius: '999px', border: '1.5px solid #e2e8f0', background: 'white', fontSize: '13px', fontWeight: 600, color: '#0f172a', cursor: 'pointer' }}>
+                            <button type="button" onClick={() => bannerInputRef.current?.click()} disabled={bannerUploading} style={{ padding: '7px 16px', borderRadius: '8px', border: '1.5px solid #e2e8f0', background: 'white', fontSize: '13px', fontWeight: 600, color: '#0f172a', cursor: 'pointer' }}>
                               {bannerUploading ? 'Uploading…' : 'Change image'}
                             </button>
-                            <button type="button" onClick={removeBanner} style={{ padding: '7px 16px', borderRadius: '999px', border: '1.5px solid #fecaca', background: 'white', fontSize: '13px', fontWeight: 600, color: '#ef4444', cursor: 'pointer' }}>
+                            <button type="button" onClick={removeBanner} style={{ padding: '7px 16px', borderRadius: '8px', border: '1.5px solid #fecaca', background: 'white', fontSize: '13px', fontWeight: 600, color: '#ef4444', cursor: 'pointer' }}>
                               Remove
                             </button>
                           </div>

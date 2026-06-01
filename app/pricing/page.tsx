@@ -65,7 +65,7 @@ export default function PricingPage() {
         display: 'flex', justifyContent: 'space-between', alignItems: 'center',
         padding: '0 32px', height: '64px',
         background: 'rgba(255,255,255,0.85)', backdropFilter: 'blur(12px)',
-        borderBottom: '1px solid #f1f5f9', position: 'sticky', top: 0, zIndex: 50,
+        borderBottom: '1px solid #e8e8e8', position: 'sticky', top: 0, zIndex: 50,
       }}>
         <Link href="/" style={{ fontSize: '22px', fontWeight: 200, letterSpacing: '-0.03em', color: '#0f172a', textDecoration: 'none' }}>
           PhotoDrop
@@ -75,19 +75,19 @@ export default function PricingPage() {
           <Link href="/login" style={{ fontSize: '14px', fontWeight: 600, color: '#64748b', textDecoration: 'none', padding: '8px 16px' }}>Log in</Link>
           <Link href="/signup" style={{
             fontSize: '14px', fontWeight: 700, color: '#fff', textDecoration: 'none',
-            padding: '9px 20px', borderRadius: '999px', background: '#3b82f6',
-            boxShadow: '0 4px 12px rgba(59,130,246,0.3)',
+            padding: '8px 18px', borderRadius: '8px', background: '#0f172a',
           }}>Get started</Link>
         </div>
       </nav>
 
       {/* Header */}
       <section style={{
-        background: 'linear-gradient(160deg, #dbeafe 0%, #eff6ff 50%, #e0f2fe 100%)',
+        background: '#f8fafc',
         padding: 'clamp(64px, 10vw, 100px) 24px clamp(48px, 8vw, 80px)',
         textAlign: 'center',
+        borderBottom: '1px solid #e8e8e8',
       }}>
-        <p style={{ fontSize: '12px', fontWeight: 700, letterSpacing: '0.14em', textTransform: 'uppercase', color: '#3b82f6', marginBottom: '16px' }}>
+        <p style={{ fontSize: '12px', fontWeight: 600, letterSpacing: '0.14em', textTransform: 'uppercase', color: '#94a3b8', marginBottom: '16px' }}>
           Pricing
         </p>
         <h1 style={{ fontSize: 'clamp(36px, 6vw, 64px)', fontWeight: 200, letterSpacing: '-0.04em', margin: '0 0 20px', lineHeight: 1.05 }}>
@@ -104,16 +104,16 @@ export default function PricingPage() {
           {tiers.map(t => (
             <div key={t.name} style={{
               borderRadius: '20px', padding: '32px',
-              border: t.highlight ? '2px solid #3b82f6' : '1px solid #e2e8f0',
-              background: t.highlight ? 'linear-gradient(160deg, #eff6ff 0%, #fff 60%)' : 'white',
-              boxShadow: t.highlight ? '0 8px 32px rgba(59,130,246,0.15)' : '0 2px 12px rgba(0,0,0,0.04)',
+              border: t.highlight ? '2px solid #0f172a' : '1px solid #e8e8e8',
+              background: 'white',
+              boxShadow: 'none',
               display: 'flex', flexDirection: 'column', gap: '0',
               position: 'relative' as const,
             }}>
               {t.badge && (
                 <div style={{
                   position: 'absolute' as const, top: '-13px', left: '50%', transform: 'translateX(-50%)',
-                  background: '#3b82f6', color: '#fff', fontSize: '11px', fontWeight: 700,
+                  background: '#0f172a', color: '#fff', fontSize: '11px', fontWeight: 700,
                   letterSpacing: '0.1em', textTransform: 'uppercase' as const,
                   padding: '4px 14px', borderRadius: '999px', whiteSpace: 'nowrap' as const,
                 }}>
@@ -141,10 +141,10 @@ export default function PricingPage() {
                 display: 'block', textAlign: 'center',
                 padding: '13px', borderRadius: '999px', textDecoration: 'none',
                 fontWeight: 700, fontSize: '15px',
-                background: t.highlight ? '#3b82f6' : 'transparent',
+                background: t.highlight ? '#0f172a' : 'transparent',
                 color: t.highlight ? '#fff' : '#0f172a',
-                border: t.highlight ? 'none' : '2px solid #e2e8f0',
-                boxShadow: t.highlight ? '0 6px 20px rgba(59,130,246,0.3)' : 'none',
+                border: t.highlight ? 'none' : '1.5px solid #e2e8f0',
+                boxShadow: 'none',
                 marginTop: 'auto',
               }}>
                 {t.cta}

@@ -212,35 +212,43 @@ export default function UploadPage() {
       <style jsx>{`
         .page {
           min-height: 100vh;
-          background: linear-gradient(180deg, #faf7f0 0%, #f1eadc 100%);
-          font-family: Arial, Helvetica, sans-serif;
+          background: #f8fafc;
+          font-family: 'Helvetica Neue', Arial, sans-serif;
         }
 
         .header {
           display: flex;
           justify-content: space-between;
           align-items: center;
-          padding: 24px;
-          max-width: 1100px;
-          margin: auto;
+          padding: 0 32px;
+          height: 60px;
+          background: rgba(255,255,255,0.9);
+          backdrop-filter: blur(10px);
+          border-bottom: 1px solid #e8e8e8;
+          position: sticky;
+          top: 0;
+          z-index: 10;
         }
 
         .brand {
-          font-size: 32px;
-          font-weight: bold;
-          color: #2f9a45;
+          font-size: 20px;
+          font-weight: 300;
+          letter-spacing: -0.02em;
+          color: #0f172a;
           text-decoration: none;
         }
 
         .nav {
           display: flex;
-          gap: 16px;
+          gap: 8px;
         }
 
         .navLink {
           text-decoration: none;
-          color: #333;
-          font-weight: 600;
+          color: #64748b;
+          font-weight: 500;
+          font-size: 14px;
+          padding: 8px 14px;
         }
 
         .wrap {
@@ -254,27 +262,27 @@ export default function UploadPage() {
         }
 
         .eyebrow {
-          font-size: 13px;
-          font-weight: 700;
+          font-size: 12px;
+          font-weight: 600;
           text-transform: uppercase;
           letter-spacing: 0.08em;
-          color: #5d7358;
+          color: #94a3b8;
           margin: 0 0 12px;
         }
 
         .title {
-          font-size: 48px;
+          font-size: clamp(32px, 5vw, 52px);
           font-weight: 300;
           letter-spacing: -0.04em;
-          color: #101418;
+          color: #0f172a;
           margin: 0 0 20px;
           line-height: 1.05;
         }
 
         .subtext {
-          font-size: 18px;
-          line-height: 1.7;
-          color: #3f4752;
+          font-size: 16px;
+          line-height: 1.75;
+          color: #64748b;
           margin: 0;
           max-width: 480px;
         }
@@ -282,8 +290,8 @@ export default function UploadPage() {
         .card {
           background: white;
           padding: 32px;
-          border-radius: 20px;
-          box-shadow: 0 12px 40px rgba(70, 62, 39, 0.1);
+          border-radius: 16px;
+          border: 1px solid #e8e8e8;
         }
 
         .cardTitle {
@@ -359,14 +367,15 @@ export default function UploadPage() {
 
         .btnPrimary {
           margin-top: 4px;
-          padding: 14px;
-          border-radius: 999px;
+          padding: 13px;
+          border-radius: 8px;
           border: none;
-          background: #efc93f;
-          font-weight: bold;
-          font-size: 16px;
+          background: #0f172a;
+          color: white;
+          font-weight: 600;
+          font-size: 15px;
           cursor: pointer;
-          transition: opacity 0.15s, transform 0.15s;
+          transition: opacity 0.15s;
         }
 
         .btnPrimary:hover:not(:disabled) {

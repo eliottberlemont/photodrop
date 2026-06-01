@@ -19,9 +19,9 @@ interface UserSettings {
 
 const sectionCard: React.CSSProperties = {
   background: 'white',
-  borderRadius: '20px',
+  borderRadius: '16px',
   padding: '28px 32px',
-  boxShadow: '0 4px 20px rgba(59,130,246,0.08)',
+  border: '1px solid #e8e8e8',
   marginBottom: '20px',
 };
 
@@ -50,12 +50,12 @@ const fieldInput: React.CSSProperties = {
 
 const saveBtn = (loading: boolean): React.CSSProperties => ({
   marginTop: '16px',
-  padding: '11px 24px',
-  borderRadius: '999px',
+  padding: '10px 22px',
+  borderRadius: '8px',
   border: 'none',
-  background: loading ? '#93c5fd' : '#3b82f6',
+  background: loading ? '#94a3b8' : '#0f172a',
   color: 'white',
-  fontWeight: 700,
+  fontWeight: 600,
   fontSize: '14px',
   cursor: loading ? 'not-allowed' : 'pointer',
 });
@@ -185,20 +185,20 @@ export default function SettingsPage() {
   };
 
   return (
-    <div style={{ minHeight: '100vh', background: 'linear-gradient(135deg, #dbeafe 0%, #eff6ff 40%, #e0f2fe 100%)', fontFamily: "'Helvetica Neue', Arial, sans-serif" }}>
+    <div style={{ minHeight: '100vh', background: '#f8fafc', fontFamily: "'Helvetica Neue', Arial, sans-serif" }}>
       {/* Header */}
-      <header style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '20px 32px', background: 'rgba(255,255,255,0.7)', backdropFilter: 'blur(12px)', borderBottom: '1px solid rgba(59,130,246,0.1)' }}>
-        <Link href="/" style={{ fontSize: '24px', fontWeight: 200, letterSpacing: '-0.03em', color: '#0f172a', textDecoration: 'none' }}>
+      <header style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '0 32px', height: '60px', background: 'rgba(255,255,255,0.9)', backdropFilter: 'blur(10px)', borderBottom: '1px solid #e8e8e8' }}>
+        <Link href="/" style={{ fontSize: '20px', fontWeight: 300, letterSpacing: '-0.02em', color: '#0f172a', textDecoration: 'none' }}>
           PhotoDrop
         </Link>
-        <nav style={{ display: 'flex', gap: '16px', alignItems: 'center' }}>
-          <Link href="/dashboard" style={{ fontSize: '14px', fontWeight: 600, color: '#64748b', textDecoration: 'none' }}>Dashboard</Link>
-          <Link href="/upload" style={{ fontSize: '14px', fontWeight: 600, color: '#64748b', textDecoration: 'none' }}>Upload</Link>
+        <nav style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+          <Link href="/dashboard" style={{ fontSize: '14px', fontWeight: 500, color: '#64748b', textDecoration: 'none', padding: '8px 14px' }}>Dashboard</Link>
+          <Link href="/upload" style={{ fontSize: '14px', fontWeight: 500, color: '#64748b', textDecoration: 'none', padding: '8px 14px' }}>Upload</Link>
         </nav>
       </header>
 
       <main style={{ maxWidth: '680px', margin: '0 auto', padding: '48px 24px' }}>
-        <p style={{ margin: '0 0 8px', fontSize: '13px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', color: '#3b82f6' }}>
+        <p style={{ margin: '0 0 8px', fontSize: '12px', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.08em', color: '#94a3b8' }}>
           Settings
         </p>
         <h1 style={{ margin: '0 0 36px', fontSize: '36px', fontWeight: 200, letterSpacing: '-0.03em', color: '#0f172a' }}>

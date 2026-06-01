@@ -110,22 +110,22 @@ export default function CustomerAlbumsPage() {
 
   if (loading) {
     return (
-      <div style={{ minHeight: '100vh', background: 'linear-gradient(135deg, #dbeafe 0%, #eff6ff 40%, #e0f2fe 100%)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: "'Helvetica Neue', Arial, sans-serif" }}>
+      <div style={{ minHeight: '100vh', background: '#f8fafc', display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: "'Helvetica Neue', Arial, sans-serif" }}>
         <p style={{ color: '#64748b' }}>Loading your photos…</p>
       </div>
     );
   }
 
   return (
-    <div style={{ minHeight: '100vh', background: 'linear-gradient(135deg, #dbeafe 0%, #eff6ff 40%, #e0f2fe 100%)', fontFamily: "'Helvetica Neue', Arial, sans-serif" }}>
+    <div style={{ minHeight: '100vh', background: '#f8fafc', fontFamily: "'Helvetica Neue', Arial, sans-serif" }}>
       {/* Header */}
-      <header style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '20px 32px', background: 'rgba(255,255,255,0.7)', backdropFilter: 'blur(12px)', borderBottom: '1px solid rgba(59,130,246,0.1)' }}>
-        <Link href="/" style={{ fontSize: '24px', fontWeight: 200, letterSpacing: '-0.03em', color: '#0f172a', textDecoration: 'none' }}>
+      <header style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '0 32px', height: '60px', background: 'rgba(255,255,255,0.9)', backdropFilter: 'blur(10px)', borderBottom: '1px solid #e8e8e8' }}>
+        <Link href="/" style={{ fontSize: '20px', fontWeight: 300, letterSpacing: '-0.02em', color: '#0f172a', textDecoration: 'none' }}>
           PhotoDrop
         </Link>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-          {email && <span style={{ fontSize: '14px', color: '#64748b' }}>{email}</span>}
-          <button onClick={handleSignOut} style={{ padding: '8px 18px', borderRadius: '999px', border: '1.5px solid #e2e8f0', background: 'white', fontSize: '14px', fontWeight: 600, color: '#64748b', cursor: 'pointer' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+          {email && <span style={{ fontSize: '13px', color: '#94a3b8' }}>{email}</span>}
+          <button onClick={handleSignOut} style={{ padding: '7px 16px', borderRadius: '8px', border: '1.5px solid #e2e8f0', background: 'white', fontSize: '13px', fontWeight: 600, color: '#64748b', cursor: 'pointer' }}>
             Sign out
           </button>
         </div>
@@ -138,7 +138,7 @@ export default function CustomerAlbumsPage() {
 
         <div style={{ display: 'grid', gridTemplateColumns: '280px 1fr', gap: '24px', alignItems: 'start' }}>
           {/* Calendar */}
-          <div style={{ background: 'white', borderRadius: '20px', padding: '20px', boxShadow: '0 4px 20px rgba(59,130,246,0.1)' }}>
+          <div style={{ background: 'white', borderRadius: '16px', padding: '20px', border: '1px solid #e8e8e8' }}>
             {/* Month nav */}
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '16px' }}>
               <button onClick={prevMonth} style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: '18px', color: '#64748b', padding: '4px 8px' }}>‹</button>
@@ -169,8 +169,8 @@ export default function CustomerAlbumsPage() {
                       padding: '6px 2px',
                       borderRadius: '8px',
                       border: 'none',
-                      background: isSelected ? '#3b82f6' : 'transparent',
-                      color: isSelected ? 'white' : hasPhotos ? '#1d4ed8' : '#64748b',
+                      background: isSelected ? '#0f172a' : 'transparent',
+                      color: isSelected ? 'white' : hasPhotos ? '#0f172a' : '#94a3b8',
                       fontWeight: hasPhotos || isSelected ? 700 : 400,
                       fontSize: '13px',
                       cursor: 'pointer',
@@ -182,7 +182,7 @@ export default function CustomerAlbumsPage() {
                   >
                     {day}
                     {hasPhotos && (
-                      <span style={{ width: '4px', height: '4px', borderRadius: '50%', background: isSelected ? 'rgba(255,255,255,0.8)' : '#3b82f6' }} />
+                      <span style={{ width: '4px', height: '4px', borderRadius: '50%', background: isSelected ? 'rgba(255,255,255,0.8)' : '#0f172a' }} />
                     )}
                   </button>
                 );
@@ -197,13 +197,13 @@ export default function CustomerAlbumsPage() {
             </p>
 
             {albums.length === 0 ? (
-              <div style={{ background: 'white', borderRadius: '16px', padding: '32px', textAlign: 'center', boxShadow: '0 4px 20px rgba(59,130,246,0.08)' }}>
+              <div style={{ background: 'white', borderRadius: '16px', padding: '32px', textAlign: 'center', border: '1px solid #e8e8e8' }}>
                 <p style={{ margin: 0, color: '#94a3b8', fontSize: '15px' }}>No photos on this day.</p>
               </div>
             ) : (
               <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
                 {albums.map(album => (
-                  <div key={album.folderPath} style={{ background: 'white', borderRadius: '16px', padding: '20px 24px', boxShadow: '0 4px 20px rgba(59,130,246,0.08)', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '16px' }}>
+                  <div key={album.folderPath} style={{ background: 'white', borderRadius: '16px', padding: '20px 24px', border: '1px solid #e8e8e8', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '16px' }}>
                     <div>
                       <div style={{ fontWeight: 700, fontSize: '17px', color: '#0f172a', marginBottom: '4px' }}>
                         {album.eventName.replace(/-/g, ' ')}
@@ -217,7 +217,7 @@ export default function CustomerAlbumsPage() {
                         href={album.folderLink}
                         target="_blank"
                         rel="noopener noreferrer"
-                        style={{ padding: '10px 20px', borderRadius: '999px', background: '#3b82f6', color: 'white', fontWeight: 700, fontSize: '14px', textDecoration: 'none', whiteSpace: 'nowrap', flexShrink: 0 }}
+                        style={{ padding: '9px 18px', borderRadius: '8px', background: '#0f172a', color: 'white', fontWeight: 600, fontSize: '13px', textDecoration: 'none', whiteSpace: 'nowrap', flexShrink: 0 }}
                       >
                         View photos
                       </a>

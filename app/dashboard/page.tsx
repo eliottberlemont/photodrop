@@ -182,6 +182,15 @@ export default function Dashboard() {
     init();
   }, [router]);
 
+  const handleDisconnect = async () => {
+    const { data: { session } } = await getSupabase().auth.getSession();
+    await fetch('/api/google/disconnect', {
+      method: 'POST',
+      headers: { Authorization: `Bearer ${session?.access_token}` },
+    });
+    setDriveConnected(false);
+  };
+
   const handleConnect = () => {
     if (!userId) return;
     const params = new URLSearchParams({
@@ -407,10 +416,16 @@ export default function Dashboard() {
                   {driveConnected === true && (
                     <div style={{ ...card, display: 'flex', alignItems: 'center', gap: '16px' }}>
                       <div style={{ width: '44px', height: '44px', borderRadius: '12px', background: '#f0fdf4', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '20px', flexShrink: 0 }}>✅</div>
-                      <div>
+                      <div style={{ flex: 1 }}>
                         <div style={{ fontWeight: 700, fontSize: '15px', color: '#16a34a' }}>Google Drive connected</div>
                         <div style={{ fontSize: '13px', color: '#64748b', marginTop: '2px' }}>Photos are being saved to your Drive</div>
                       </div>
+                      <button
+                        onClick={handleDisconnect}
+                        style={{ padding: '7px 14px', borderRadius: '8px', border: '1.5px solid #e2e8f0', background: 'white', fontSize: '12px', fontWeight: 600, color: '#64748b', cursor: 'pointer', whiteSpace: 'nowrap' as const }}
+                      >
+                        Switch account
+                      </button>
                     </div>
                   )}
 

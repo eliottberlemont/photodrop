@@ -1,6 +1,6 @@
 {
   "$schema": "./node_modules/wrangler/config-schema.json",
-  "name": "photodrop",
+  "name": "photodrop-live",
   "main": ".vercel/output/static/_worker.js/index.js",
   "compatibility_date": "2026-04-02",
   "compatibility_flags": ["nodejs_compat"],

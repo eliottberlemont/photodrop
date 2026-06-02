@@ -44,27 +44,28 @@ export async function POST(req: Request) {
       return new Response(JSON.stringify({ error: "Album not found" }), { status: 404 });
     }
 
-    const accessToken = await getValidToken(user.id);
+    // Best-effort Drive deletion — failures don't block the record removal
+    try {
+      const accessToken = await getValidToken(user.id);
 
-    // Delete each unique file from Drive
-    const seenFileIds = new Set<string>();
-    for (const row of rows) {
-      if (row.drive_file_id && !seenFileIds.has(row.drive_file_id)) {
-        seenFileIds.add(row.drive_file_id);
-        await deleteFromDrive(row.drive_file_id, accessToken);
+      const seenFileIds = new Set<string>();
+      for (const row of rows) {
+        if (row.drive_file_id && !seenFileIds.has(row.drive_file_id)) {
+          seenFileIds.add(row.drive_file_id);
+          try { await deleteFromDrive(row.drive_file_id, accessToken); } catch {}
+        }
       }
-    }
 
-    // Extract the Drive folder ID from the folder link and delete it
-    const folderLink: string | null = rows[0].folder_link;
-    if (folderLink) {
-      const match = folderLink.match(/folders\/([a-zA-Z0-9_-]+)/);
-      if (match) {
-        await deleteFromDrive(match[1], accessToken);
+      const folderLink: string | null = rows[0].folder_link;
+      if (folderLink) {
+        const match = folderLink.match(/folders\/([a-zA-Z0-9_-]+)/);
+        if (match) {
+          try { await deleteFromDrive(match[1], accessToken); } catch {}
+        }
       }
-    }
+    } catch {}
 
-    // Soft-delete DB records
+    // Always soft-delete the DB records
     await admin
       .from("uploaded_files")
       .update({ deleted_at: new Date().toISOString() })

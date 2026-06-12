@@ -2,7 +2,7 @@ export const runtime = "edge";
 
 import { createClient } from "@supabase/supabase-js";
 import { getSupabaseAdmin } from "@/lib/supabase-admin";
-import { getValidToken } from "@/lib/google-token";
+import { getValidToken, GoogleReauthRequiredError } from "@/lib/google-token";
 import { getOrCreateFolderPath, uploadFileToDrive, shareFolderPublicly } from "@/lib/google-drive";
 
 export async function POST(req: Request) {
@@ -63,7 +63,18 @@ export async function POST(req: Request) {
     }
 
     // 4. Get a valid (auto-refreshed) Google access token for this user
-    const accessToken = await getValidToken(user.id);
+    let accessToken: string;
+    try {
+      accessToken = await getValidToken(user.id);
+    } catch (err) {
+      if (err instanceof GoogleReauthRequiredError) {
+        return new Response(
+          JSON.stringify({ error: "reauth_required", message: err.message }),
+          { status: 409 }
+        );
+      }
+      throw err;
+    }
 
     // 5. Resolve/create folder path: PhotoDrop/YYYY-MM/DD/event-name
     const now = new Date();

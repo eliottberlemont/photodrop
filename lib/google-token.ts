@@ -6,6 +6,15 @@ interface TokenRow {
   token_expiry: string;
 }
 
+// Thrown when the stored Google connection is missing or permanently invalid
+// (refresh token revoked/expired) — the user needs to reconnect Google Drive.
+export class GoogleReauthRequiredError extends Error {
+  constructor(message = "Google Drive is not connected — reconnect it to resume uploads") {
+    super(message);
+    this.name = "GoogleReauthRequiredError";
+  }
+}
+
 export async function getValidToken(userId: string): Promise<string> {
   const supabase = getSupabaseAdmin();
 
@@ -15,7 +24,7 @@ export async function getValidToken(userId: string): Promise<string> {
     .eq("user_id", userId)
     .single<TokenRow>();
 
-  if (error || !data) throw new Error("No Google token for user — connect Google Drive first");
+  if (error || !data) throw new GoogleReauthRequiredError();
 
   // Return existing token if it won't expire within the next 60 seconds
   if (new Date(data.token_expiry).getTime() - Date.now() > 60_000) {
@@ -34,7 +43,19 @@ export async function getValidToken(userId: string): Promise<string> {
     }),
   });
 
-  if (!res.ok) throw new Error("Google token refresh failed");
+  if (!res.ok) {
+    const body = await res.json().catch(() => null) as { error?: string } | null;
+
+    // Refresh token was revoked or expired (e.g. user revoked access, or an
+    // unverified OAuth app's tokens expired after 7 days of inactivity).
+    // Clear the stale row so the dashboard correctly prompts reconnection.
+    if (body?.error === "invalid_grant") {
+      await supabase.from("google_tokens").delete().eq("user_id", userId);
+      throw new GoogleReauthRequiredError();
+    }
+
+    throw new Error(`Google token refresh failed: ${body?.error ?? res.status}`);
+  }
 
   const { access_token, expires_in } = await res.json();
   const token_expiry = new Date(Date.now() + expires_in * 1000).toISOString();

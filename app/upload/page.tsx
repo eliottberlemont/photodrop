@@ -79,7 +79,11 @@ export default function UploadPage() {
         const data = await res.json();
 
         if (!res.ok) {
-          alert(`File ${i + 1} failed: ${data.error || 'Upload failed.'}`);
+          if (data.error === 'reauth_required') {
+            alert('Your Google Drive connection has expired. Go to the dashboard and reconnect Google Drive, then try again.');
+          } else {
+            alert(`File ${i + 1} failed: ${data.error || 'Upload failed.'}`);
+          }
           return;
         }
         folderPath = data.folderPath;

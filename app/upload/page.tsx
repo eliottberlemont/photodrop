@@ -61,6 +61,7 @@ export default function UploadPage() {
 
     setUploading(true);
     let folderPath = '';
+    let emailSent = true;
     try {
       for (let i = 0; i < files.length; i++) {
         setProgress(`Uploading ${i + 1} / ${files.length}…`);
@@ -87,9 +88,14 @@ export default function UploadPage() {
           return;
         }
         folderPath = data.folderPath;
+        if (data.emailSent === false) emailSent = false;
       }
 
-      alert(`${files.length} photo${files.length > 1 ? 's' : ''} uploaded to ${folderPath}. ${customerEmails.length} customer${customerEmails.length > 1 ? 's' : ''} notified.`);
+      if (emailSent) {
+        alert(`${files.length} photo${files.length > 1 ? 's' : ''} uploaded to ${folderPath}. ${customerEmails.length} customer${customerEmails.length > 1 ? 's' : ''} notified.`);
+      } else {
+        alert(`${files.length} photo${files.length > 1 ? 's' : ''} uploaded to ${folderPath}, but the notification email failed to send. You can resend it from the dashboard's history tab.`);
+      }
       setFiles([]);
       setEventName('');
       setCustomerEmails([]);

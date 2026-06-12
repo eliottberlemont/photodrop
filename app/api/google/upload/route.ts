@@ -111,8 +111,11 @@ export async function POST(req: Request) {
         { status: 200 }
       );
     }
+
+    let emailSent = true;
+    let emailError: string | null = null;
     try {
-      await fetch("https://api.resend.com/emails", {
+      const emailRes = await fetch("https://api.resend.com/emails", {
         method: "POST",
         headers: {
           Authorization: `Bearer ${process.env.RESEND_API_KEY}`,
@@ -126,12 +129,20 @@ export async function POST(req: Request) {
 <p><a href="${folderLink}" style="display:inline-block;padding:12px 24px;background:#3b82f6;color:#fff;text-decoration:none;border-radius:6px;font-weight:bold;">View Your Photos</a></p>`,
         }),
       });
-    } catch {
-      // Email failure is non-fatal
+
+      if (!emailRes.ok) {
+        emailSent = false;
+        emailError = await emailRes.text();
+        console.error("Resend send failed:", emailRes.status, emailError);
+      }
+    } catch (err) {
+      emailSent = false;
+      emailError = String(err);
+      console.error("Resend send threw:", err);
     }
 
     return new Response(
-      JSON.stringify({ success: true, fileId: driveFileId, folderPath: folderPath.join("/") }),
+      JSON.stringify({ success: true, fileId: driveFileId, folderPath: folderPath.join("/"), emailSent, emailError }),
       { status: 200 }
     );
   } catch (err) {

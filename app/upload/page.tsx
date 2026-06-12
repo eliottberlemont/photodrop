@@ -60,42 +60,92 @@ export default function UploadPage() {
     }
 
     setUploading(true);
-    let folderPath = '';
-    let emailSent = true;
     try {
-      for (let i = 0; i < files.length; i++) {
-        setProgress(`Uploading ${i + 1} / ${files.length}…`);
-        const fd = new FormData();
-        fd.append('file', files[i]);
-        fd.append('event_name', eventName);
-        fd.append('customer_emails', customerEmails.join(','));
-        fd.append('send_email', i === files.length - 1 ? 'true' : 'false');
-        if (businessId) fd.append('business_id', businessId);
-
-        const res = await fetch('/api/google/upload', {
-          method: 'POST',
-          headers: { Authorization: `Bearer ${token}` },
-          body: fd,
-        });
-        const data = await res.json();
-
-        if (!res.ok) {
-          if (data.error === 'reauth_required') {
-            alert('Your Google Drive connection has expired. Go to the dashboard and reconnect Google Drive, then try again.');
-          } else {
-            alert(`File ${i + 1} failed: ${data.error || 'Upload failed.'}`);
-          }
-          return;
+      // 1. Resolve/create and share the destination folder once for the whole batch
+      setProgress('Preparing album…');
+      const prepRes = await fetch('/api/google/prepare-album', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+        body: JSON.stringify({ event_name: eventName, business_id: businessId || undefined }),
+      });
+      const prep = await prepRes.json();
+      if (!prepRes.ok) {
+        if (prep.error === 'reauth_required') {
+          alert('Your Google Drive connection has expired. Go to the dashboard and reconnect Google Drive, then try again.');
+        } else {
+          alert(`Failed to prepare album: ${prep.error || 'Unknown error'}`);
         }
-        folderPath = data.folderPath;
-        if (data.emailSent === false) emailSent = false;
+        return;
       }
 
-      if (emailSent) {
-        alert(`${files.length} photo${files.length > 1 ? 's' : ''} uploaded to ${folderPath}. ${customerEmails.length} customer${customerEmails.length > 1 ? 's' : ''} notified.`);
-      } else {
-        alert(`${files.length} photo${files.length > 1 ? 's' : ''} uploaded to ${folderPath}, but the notification email failed to send. You can resend it from the dashboard's history tab.`);
+      // 2. Upload files with limited concurrency
+      const CONCURRENCY = 4;
+      const queue = [...files];
+      let completed = 0;
+      const fileErrors: string[] = [];
+      let reauthRequired = false;
+
+      const worker = async () => {
+        while (queue.length > 0) {
+          const file = queue.shift();
+          if (!file) break;
+
+          const fd = new FormData();
+          fd.append('file', file);
+          fd.append('folder_id', prep.folderId);
+          fd.append('folder_path', prep.folderPath);
+          fd.append('folder_link', prep.folderLink);
+          fd.append('expires_at', prep.expiresAt);
+          fd.append('customer_emails', customerEmails.join(','));
+          if (businessId) fd.append('business_id', businessId);
+
+          const res = await fetch('/api/google/upload', {
+            method: 'POST',
+            headers: { Authorization: `Bearer ${token}` },
+            body: fd,
+          });
+          const data = await res.json();
+
+          if (!res.ok) {
+            if (data.error === 'reauth_required') reauthRequired = true;
+            else fileErrors.push(`${file.name}: ${data.error || 'Upload failed.'}`);
+          }
+
+          completed++;
+          setProgress(`Uploading ${completed} / ${files.length}…`);
+        }
+      };
+
+      await Promise.all(Array.from({ length: Math.min(CONCURRENCY, queue.length) }, worker));
+
+      if (reauthRequired) {
+        alert('Your Google Drive connection has expired. Go to the dashboard and reconnect Google Drive, then try again.');
+        return;
       }
+      if (fileErrors.length > 0) {
+        alert(`${fileErrors.length} of ${files.length} file(s) failed to upload:\n${fileErrors.join('\n')}`);
+        return;
+      }
+
+      // 3. Send a single notification email for the whole album
+      setProgress('Notifying customers…');
+      const emailRes = await fetch('/api/resend-album', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+        body: JSON.stringify({
+          folder_link: prep.folderLink,
+          event_name: eventName,
+          customer_emails: customerEmails,
+          expires_at: prep.expiresAt,
+        }),
+      });
+
+      if (emailRes.ok) {
+        alert(`${files.length} photo${files.length > 1 ? 's' : ''} uploaded to ${prep.folderPath}. ${customerEmails.length} customer${customerEmails.length > 1 ? 's' : ''} notified.`);
+      } else {
+        alert(`${files.length} photo${files.length > 1 ? 's' : ''} uploaded to ${prep.folderPath}, but the notification email failed to send. You can resend it from the dashboard's history tab.`);
+      }
+
       setFiles([]);
       setEventName('');
       setCustomerEmails([]);

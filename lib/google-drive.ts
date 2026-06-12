@@ -57,21 +57,47 @@ export async function getOrCreateFolderPath(
   return parentId!;
 }
 
+// Resumable upload: multipart/media uploads are capped at 5MB by Drive, so we
+// use the resumable protocol (no size cap) for every file. For files that fit
+// in one request we still send the body in a single PUT to the session URL.
 export async function uploadFileToDrive(
   file: File,
   folderId: string,
   token: string
 ): Promise<string> {
   const metadata = { name: file.name, parents: [folderId] };
-  const body = new FormData();
-  body.append("metadata", new Blob([JSON.stringify(metadata)], { type: "application/json" }));
-  body.append("file", file);
 
-  const res = await fetch(
-    "https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart&fields=id",
-    { method: "POST", headers: { Authorization: `Bearer ${token}` }, body }
+  const initRes = await fetch(
+    "https://www.googleapis.com/upload/drive/v3/files?uploadType=resumable&fields=id",
+    {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json; charset=UTF-8",
+        "X-Upload-Content-Type": file.type || "application/octet-stream",
+        "X-Upload-Content-Length": String(file.size),
+      },
+      body: JSON.stringify(metadata),
+    }
   );
-  const data = await res.json();
+
+  if (!initRes.ok) {
+    throw new Error(`Drive upload init failed: ${await initRes.text()}`);
+  }
+
+  const sessionUrl = initRes.headers.get("Location");
+  if (!sessionUrl) throw new Error("Drive upload init failed: no session URL returned");
+
+  const uploadRes = await fetch(sessionUrl, {
+    method: "PUT",
+    headers: {
+      "Content-Type": file.type || "application/octet-stream",
+      "Content-Length": String(file.size),
+    },
+    body: file,
+  });
+
+  const data = await uploadRes.json();
   if (!data.id) throw new Error(`Drive upload failed: ${JSON.stringify(data)}`);
   return data.id as string;
 }
